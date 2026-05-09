@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "ProductCreatedIntegrationEvent",
+  "namespace": "com.hdp.messaging.event.product",
+  "fields": [
+    {"name": "eventId", "type": "string"},
+    {"name": "eventType", "type": "string"},
+    {"name": "version", "type": "int"},
+    {"name": "source", "type": "string"},
+    {"name": "correlationId", "type": ["null", "string"], "default": null},
+    {"name": "occurredAt", "type": "long", "logicalType": "timestamp-millis"},
+    {"name": "data", "type": {
+      "type": "record",
+      "name": "ProductCreatedEventData",
+      "fields": [
+        {"name": "productId", "type": "string"},
+        {"name": "sellerId", "type": "string"},
+        {"name": "categoryId", "type": ["null", "string"], "default": null},
+        {"name": "name", "type": "string"},
+        {"name": "price", "type": {"type": "bytes", "logicalType": "decimal", "precision": 10, "scale": 2}},
+        {"name": "images", "type": {"type": "array", "items": "string"}, "default": []},
+        {"name": "status", "type": "string"}
+      ]
+    }}
+  ]
+}

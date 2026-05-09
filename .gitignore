@@ -70,10 +70,6 @@ docker-compose.override.yml
 *.key
 credentials.json
 
-# Schema registry schemas (generated)
-**/avro/*.avsc
-**/avro/*.avro
-
 # Test output
 test-output/
 **/test-output/
