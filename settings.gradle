@@ -1,0 +1,29 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://repo.spring.io/snapshot' }
+        mavenLocal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url 'https://packages.confluent.io/maven/' }
+    }
+}
+
+rootProject.name = 'ecommerce-microservice'
+
+include 'hdp-common-core'
+include 'hdp-common-web'
+include 'hdp-common-infrastructure'
+include 'hdp-common-persistence'
+include 'hdp-common-test'
+include 'hdp-common-messaging'
+include 'hdp-product-service'
+include 'hdp-notification-service'
+include 'hdp-order-service'

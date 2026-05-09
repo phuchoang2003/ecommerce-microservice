@@ -1,0 +1,14 @@
+spring:
+  config:
+    import:
+      - "classpath:application-kafka.yaml"
+      - "classpath:application-thread-pool.yaml"
+
+  application:
+    name: notification-service
+
+
+server:
+  port: 8082
+
+

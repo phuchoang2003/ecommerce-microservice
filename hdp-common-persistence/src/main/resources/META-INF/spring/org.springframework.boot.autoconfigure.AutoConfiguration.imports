@@ -1,0 +1,2 @@
+com.hdp.common.persistence.event.DomainEventPublisherAutoConfiguration
+com.hdp.common.persistence.datasource.DataSourceProxyAutoConfiguration

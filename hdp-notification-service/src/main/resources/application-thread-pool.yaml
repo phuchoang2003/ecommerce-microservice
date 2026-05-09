@@ -1,0 +1,7 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+      initial-size: 1
+      max-size: 1
+      core-size: 1

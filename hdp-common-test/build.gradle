@@ -1,0 +1,86 @@
+plugins {
+    id 'java-library'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'maven-publish'
+}
+
+group = 'com.hdp'
+version = '0.0.1-SNAPSHOT'
+description = 'Test utilities for HDP microservices'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+ext {
+    set('junitVersion', '5.11.0')
+    set('mockitoVersion', '5.11.0')
+    set('assertjVersion', '3.25.3')
+    set('testcontainersVersion', '1.19.7')
+    set('dataSourceProxyVersion', '2.0.0')
+    set('lombokVersion', '1.18.42')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:4.0.5'
+    }
+    dependencies {
+        dependency "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        dependency "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        dependency "org.mockito:mockito-core:${mockitoVersion}"
+        dependency "org.assertj:assertj-core:${assertjVersion}"
+        dependency "org.testcontainers:testcontainers:${testcontainersVersion}"
+        dependency "com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:${dataSourceProxyVersion}"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "org.projectlombok:lombok:${lombokVersion}"
+    }
+}
+
+dependencies {
+    // Lombok for convenience in test helpers
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Testing frameworks - provided for consumers
+    compileOnly "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    compileOnly "org.assertj:assertj-core:${assertjVersion}"
+    compileOnly "org.mockito:mockito-core:${mockitoVersion}"
+    compileOnly "org.testcontainers:testcontainers:${testcontainersVersion}"
+    compileOnly("com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:2.0.0")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'hdp-common-test'
+                description = 'Test utilities for HDP microservices'
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}

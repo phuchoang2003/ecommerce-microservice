@@ -1,0 +1,26 @@
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        highlight_sql: false
+        order_inserts: true
+        order_updates: true
+        type:
+          json_format: canonical
+        jdbc:
+          time-zone: UTC
+          batch_size: ${JPA_BATCH_SIZE:15}
+          batch_versioned_data: true
+        query:
+          query-plan-cache-max-size: ${JPA_QUERY_PLAN_CACHE_MAX_SIZE:4096}
+          in_clause_parameter_padding: true
+          fail_on_pagination_over_collection_fetch: true
+        connection:
+          provider_disables_autocommit: true
+        generate_statistics: true

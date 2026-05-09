@@ -1,0 +1,47 @@
+server:
+  shutdown: graceful
+  port: ${PORT:8080}
+  servlet:
+    context-path: ${CONTEXT_PATH:/api}
+
+  ## HTTPS
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for # real user's IP
+      protocol-header: x-forwarded-proto # http or https
+  ## GZIP
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    min-response-size: ${GZIP_MIN_RESPONSE_SIZE:1024} # 1KB
+spring:
+  config:
+    import:
+      - classpath:application-flyway.yaml
+      - classpath:application-datasource.yaml
+      - classpath:application-jpa.yaml
+      - classpath:application-swagger.yaml
+  application:
+    name: order-service
+  threads:
+    virtual:
+      enabled: true
+  main:
+    keep-alive: true
+
+
+
+info:
+  app:
+    version: v1.0.0
+    cpu-pool:
+      core-size: ${CORE_POOL_SIZE:4}
+      max-size: ${MAX_POOL_SIZE:4}
+      queue-capacity: ${QUEUE_CAPACITY:50}
+      keep-alive-seconds: ${KEEP_ALIVE_SECONDS:60}
+
+logging:
+  level:
+    net.ttddyy.dsproxy.listener: DEBUG
+    org.springframework.web.cors: DEBUG
+    org.springframework.web.filter: DEBUG

@@ -1,0 +1,81 @@
+plugins {
+    id 'java-library'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'maven-publish'
+    id 'com.github.davidmc24.gradle.plugin.avro' version '1.9.1'
+}
+
+group = 'com.hdp'
+version = '0.0.1-SNAPSHOT'
+description = 'Messaging library with Kafka + Avro support'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+ext {
+    set('confluentVersion', '7.5.0')
+    set('avroVersion', '1.11.3')
+    set('lombokVersion', '1.18.42')
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:4.0.5'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://packages.confluent.io/maven/' }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "org.projectlombok:lombok:${lombokVersion}"
+    }
+}
+
+dependencies {
+    // Spring Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // Confluent Schema Registry & Avro
+    api "io.confluent:kafka-avro-serializer:${confluentVersion}"
+    api "org.apache.avro:avro:${avroVersion}"
+
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter:4.0.5'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'hdp-common-messaging'
+                description = 'Messaging library with Kafka + Avro support'
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}

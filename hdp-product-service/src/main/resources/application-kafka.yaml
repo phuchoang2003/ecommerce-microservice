@@ -1,0 +1,14 @@
+hdp:
+  messaging:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    schema-registry-url: ${SCHEMA_REGISTRY_URL:http://localhost:8085}
+    consumer-group-id: ${KAFKA_CONSUMER_GROUP_ID:product-service-group}
+    auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+    specific-avro-reader: ${KAFKA_SPECIFIC_AVRO_READER:true}
+
+app:
+  kafka:
+    topics:
+      product-created: ${KAFKA_TOPIC_PRODUCT_CREATED:product.created}
+      product-updated: ${KAFKA_TOPIC_PRODUCT_UPDATED:product.updated}
+      product-deleted: ${KAFKA_TOPIC_PRODUCT_DELETED:product.deleted}
