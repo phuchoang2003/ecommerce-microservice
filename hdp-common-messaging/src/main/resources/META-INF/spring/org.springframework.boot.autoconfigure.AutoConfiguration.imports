@@ -1,0 +1,2 @@
+com.hdp.common.messaging.config.KafkaMessagingConfig
+com.hdp.common.messaging.publisher.AvroOutboundEventPublisher

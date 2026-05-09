@@ -1,0 +1,3 @@
+com.hdp.common.infrastructure.executor.TaskExecutorAutoConfiguration
+com.hdp.common.infrastructure.schedule.SchedulerAutoConfiguration
+com.hdp.common.infrastructure.serialization.JacksonAutoConfiguration

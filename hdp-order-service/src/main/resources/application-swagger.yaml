@@ -1,0 +1,12 @@
+app:
+  swagger:
+    title: "HDP Order Service API"
+    version: "1.0.0"
+    description: "API documentation for HDP Order Service"
+    contact-name: "HDP Order Team"
+    contact-email: "order@hdp.com"
+    license-name: "Proprietary"
+    license-url: "https://hdp.com/license"
+    server-url: "/api/v1"
+    server-description: "Order Service API Server"
+    property-naming-strategy: SNAKE_CASE

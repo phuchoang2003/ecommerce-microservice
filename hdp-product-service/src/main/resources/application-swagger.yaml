@@ -1,0 +1,12 @@
+app:
+  swagger:
+    title: "HDP Product Service API"
+    version: "1.0.0"
+    description: "API documentation for HDP Product Service"
+    contact-name: "HDP Product Team"
+    contact-email: "product@hdp.com"
+    license-name: "Proprietary"
+    license-url: "https://hdp.com/license"
+    server-url: "/api/v1"
+    server-description: "Product Service API Server"
+    property-naming-strategy: SNAKE_CASE
