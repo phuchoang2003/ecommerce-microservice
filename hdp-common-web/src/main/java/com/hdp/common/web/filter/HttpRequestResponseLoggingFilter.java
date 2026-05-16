@@ -1,57 +1,40 @@
 package com.hdp.common.web.filter;
 
-
 import com.hdp.core.constant.RequestContextConstants;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
-import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import tools.jackson.databind.ObjectMapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(RequestResponseLoggingProperties.class)
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
-
-    private static final Logger log = LoggerFactory.getLogger(HttpRequestResponseLoggingFilter.class);
 
     private final RequestResponseLoggingProperties properties;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final ObjectMapper objectMapper;
 
-    public HttpRequestResponseLoggingFilter(RequestResponseLoggingProperties properties,
-                                            ObjectMapper objectMapper) {
+    public HttpRequestResponseLoggingFilter(RequestResponseLoggingProperties properties) {
         this.properties = properties;
-        this.objectMapper = objectMapper;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain) throws IOException, ServletException {
 
-        if (!properties.enabled()) {
+        if (Boolean.FALSE.equals(properties.enabled())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -62,34 +45,24 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
-        long startTime = System.currentTimeMillis();
+        long startTime = Instant.now().toEpochMilli();
 
         String traceId = getOrGenerateTraceId(request);
-        String requestId = UUID.randomUUID().toString();
-
-        MDC.put(RequestContextConstants.TRACE_ID, traceId);
-        MDC.put(RequestContextConstants.REQUEST_ID, requestId);
-        MDC.put(RequestContextConstants.ENDPOINT, path);
-        MDC.put(RequestContextConstants.METHOD, request.getMethod());
-        MDC.put(RequestContextConstants.SERVICE, getServiceName());
-
         response.setHeader(RequestContextConstants.HEADER_TRACE_ID, traceId);
-        response.setHeader(RequestContextConstants.HEADER_REQUEST_ID, requestId);
 
-        CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
-        CachedBodyHttpServletResponse cachedResponse = new CachedBodyHttpServletResponse(response);
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
         try {
-            filterChain.doFilter(cachedRequest, cachedResponse);
+            filterChain.doFilter(request, wrappedResponse);
         } finally {
-            long duration = System.currentTimeMillis() - startTime;
+            int status = wrappedResponse.getStatus();
+            long duration = Instant.now().toEpochMilli() - startTime;
+            String body = getResponseBody(wrappedResponse);
 
-            logRequest(cachedRequest, traceId, requestId);
-            logResponse(cachedResponse, traceId, requestId);
+            log.info("{} {} - {}ms - status={} | body={}",
+                    request.getMethod(), path, duration, status, truncate(body));
 
-            log.info("{} {} - {}ms - status={}", request.getMethod(), path, duration, cachedResponse.getStatus());
-
-            MDC.clear();
+            wrappedResponse.copyBodyToResponse();
         }
     }
 
@@ -97,50 +70,24 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
         if (properties.excludePatterns().stream().anyMatch(pattern -> pathMatcher.match(pattern, path))) {
             return false;
         }
-        return properties.includePatterns().stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
+        return properties.includePatterns().isEmpty() ||
+               properties.includePatterns().stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
-    private void logRequest(CachedBodyHttpServletRequest request, String traceId, String requestId) {
-        if (!properties.logRequestBody()) {
-            log.info("--> {} {}", request.getMethod(), request.getRequestURI());
-            return;
-        }
-
-        String body = readBody(request);
-        if (body != null && !body.isBlank()) {
-            String truncatedBody = truncate(body);
-            log.info("--> {} {} | body={}", request.getMethod(), request.getRequestURI(), truncatedBody);
-        } else {
-            log.info("--> {} {}", request.getMethod(), request.getRequestURI());
-        }
-    }
-
-    private void logResponse(CachedBodyHttpServletResponse response, String traceId, String requestId) {
-        if (!properties.logResponseBody()) {
-            return;
-        }
-
-        String body = response.getBody();
-        if (body != null && !body.isBlank()) {
-            String truncatedBody = truncate(body);
-            log.info("<-- {} | body={}", response.getStatus(), truncatedBody);
-        }
-    }
-
-    private String readBody(CachedBodyHttpServletRequest request) {
-        try {
-            return new String(request.getCachedBody(), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return null;
-        }
+    private String getResponseBody(ContentCachingResponseWrapper response) {
+        byte[] buf = response.getContentAsByteArray();
+        return new String(buf, StandardCharsets.UTF_8);
     }
 
     private String truncate(String body) {
-        if (body.length() > properties.maxBodyLength()) {
-            return body.substring(0, properties.maxBodyLength()) + "...[truncated]";
+        if (body == null || body.isBlank()) {
+            return body;
         }
-        Object json = objectMapper.readValue(body, Object.class);
-        return objectMapper.writeValueAsString(json);
+        int maxLength = properties.maxBodyLength();
+        if (body.length() > maxLength) {
+            return body.substring(0, maxLength) + "...[truncated]";
+        }
+        return body;
     }
 
     private String getOrGenerateTraceId(HttpServletRequest request) {
@@ -148,138 +95,8 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
         return traceId != null && !traceId.isBlank() ? traceId : UUID.randomUUID().toString();
     }
 
-    private String getServiceName() {
-        String serviceName = System.getenv("SERVICE_NAME");
-        return serviceName != null ? serviceName : "unknown-service";
-    }
-
-    private static class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
-
-        private final byte[] cachedBody;
-
-        public CachedBodyHttpServletRequest(HttpServletRequest request) throws IOException {
-            super(request);
-            this.cachedBody = request.getInputStream().readAllBytes();
-        }
-
-        public byte[] getCachedBody() {
-            return cachedBody;
-        }
-
-        @Override
-        public ServletInputStream getInputStream() {
-            return new CachedBodyServletInputStream(this.cachedBody);
-        }
-
-        @Override
-        public BufferedReader getReader() {
-            ByteArrayInputStream bais = new ByteArrayInputStream(this.cachedBody);
-            return new BufferedReader(new InputStreamReader(bais, StandardCharsets.UTF_8));
-        }
-    }
-
-    private static class CachedBodyServletInputStream extends ServletInputStream {
-
-        private final ByteArrayInputStream inputStream;
-
-        public CachedBodyServletInputStream(byte[] cachedBody) {
-            this.inputStream = new ByteArrayInputStream(cachedBody);
-        }
-
-        @Override
-        public boolean isFinished() {
-            return inputStream.available() == 0;
-        }
-
-        @Override
-        public boolean isReady() {
-            return true;
-        }
-
-        @Override
-        public void setReadListener(ReadListener readListener) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int read() {
-            return inputStream.read();
-        }
-    }
-
-    private static class CachedBodyHttpServletResponse extends HttpServletResponseWrapper {
-
-        private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        @Getter
-        private int status = HttpStatus.OK.value();
-        private String body;
-
-        public CachedBodyHttpServletResponse(HttpServletResponse response) {
-            super(response);
-        }
-
-        @Override
-        public PrintWriter getWriter() {
-            return new PrintWriter(outputStream, true, StandardCharsets.UTF_8);
-        }
-
-        @Override
-        public ServletOutputStream getOutputStream() {
-            return new CachedBodyServletOutputStream(outputStream);
-        }
-
-        @Override
-        public void setStatus(int status) {
-            this.status = status;
-            super.setStatus(status);
-        }
-
-        @Override
-        public void sendError(int sc) throws IOException {
-            this.status = sc;
-            super.sendError(sc);
-        }
-
-        @Override
-        public void sendError(int sc, String msg) throws IOException {
-            this.status = sc;
-            super.sendError(sc, msg);
-        }
-
-        public String getBody() {
-            if (body == null) {
-                body = outputStream.toString(StandardCharsets.UTF_8);
-            }
-            return body;
-        }
-    }
-
-    private static class CachedBodyServletOutputStream extends ServletOutputStream {
-
-        private final OutputStream outputStream;
-
-        public CachedBodyServletOutputStream(OutputStream outputStream) {
-            this.outputStream = outputStream;
-        }
-
-        @Override
-        public boolean isReady() {
-            return true;
-        }
-
-        @Override
-        public void setWriteListener(WriteListener writeListener) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            outputStream.write(b);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            outputStream.write(b, off, len);
-        }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !properties.enabled();
     }
 }

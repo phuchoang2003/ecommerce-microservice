@@ -51,22 +51,7 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex, WebRequest request) {
-        log.error("Business exception: {} - {}", ex.getErrorCode(), ex.getMessage());
 
-        Locale locale = LocaleContextHolder.getLocale();
-        String message = messageSource.getMessage(ex.getErrorCode().getMessageKey(), ex.getMessageArgs(), locale);
-
-        ProblemDetail problemDetail = createProblemDetail(ex.getErrorCode(), message, request);
-
-        if (ex.getDetails() != null) {
-            Map<String, Object> details = new LinkedHashMap<>(ex.getDetails());
-            details.forEach(problemDetail::setProperty);
-        }
-
-        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ex.getErrorCode())).body(problemDetail);
-    }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ProblemDetail> handleValidationException(ValidationException ex, WebRequest request) {
@@ -84,6 +69,23 @@ public class GlobalExceptionHandler {
         }
 
         return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ErrorCode.VALIDATION_ERROR)).body(problemDetail);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex, WebRequest request) {
+        log.error("Business exception: {} - {}", ex.getErrorCode(), ex.getMessage());
+
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage(ex.getErrorCode().getMessageKey(), ex.getMessageArgs(), locale);
+
+        ProblemDetail problemDetail = createProblemDetail(ex.getErrorCode(), message, request);
+
+        if (ex.getDetails() != null) {
+            Map<String, Object> details = new LinkedHashMap<>(ex.getDetails());
+            details.forEach(problemDetail::setProperty);
+        }
+
+        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ex.getErrorCode())).body(problemDetail);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -11,4 +11,6 @@ public interface ProductionSnapshotPersistencePort {
     Map<UUID, ProductSnapshot> findByProductIdIn(List<UUID> productIds);
 
     void validateProductExists(UUID productId, UUID variantId);
+
+    void save(ProductSnapshot snapshot);
 }
