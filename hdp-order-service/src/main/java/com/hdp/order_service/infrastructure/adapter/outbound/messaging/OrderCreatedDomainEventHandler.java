@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderCreatedDomainEventHandler implements DomainEventHandler<OrderCreatedDomainEvent> {
 
-    private final OrderEventPublisher publisher;
     private static final String ORDER_TOPIC = "order-created";
 
     @Override

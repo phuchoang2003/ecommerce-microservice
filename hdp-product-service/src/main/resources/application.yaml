@@ -12,6 +12,7 @@ server:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
     min-response-size: ${GZIP_MIN_RESPONSE_SIZE:1024}
+  address: 0.0.0.0
 spring:
   config:
     import:
@@ -37,8 +38,13 @@ info:
       queue-capacity: ${QUEUE_CAPACITY:50}
       keep-alive-seconds: ${KEEP_ALIVE_SECONDS:60}
 
+
 logging:
   level:
     net.ttddyy.dsproxy.listener: DEBUG
     org.springframework.web.cors: DEBUG
     org.springframework.web.filter: DEBUG
+app:
+  logging:
+    request:
+      enabled: true

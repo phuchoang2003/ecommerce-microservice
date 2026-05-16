@@ -1,15 +1,23 @@
 package com.hdp.common.messaging.config;
 
+import com.hdp.common.messaging.publisher.AvroOutboundEventPublisher;
+import com.hdp.common.messaging.publisher.OutboundEventPublisher;
+import com.hdp.common.messaging.validator.EventValidator;
+import com.hdp.common.messaging.validator.ValidatingOutboundEventPublisher;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -19,10 +27,12 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @AutoConfiguration
 @EnableConfigurationProperties(KafkaMessagingProperties.class)
+@EnableKafka
 public class KafkaMessagingConfig {
 
     private final String CONSUMER_FACTORY = "consumerFactory";
@@ -56,7 +66,7 @@ public class KafkaMessagingConfig {
         props.put(org.apache.kafka.clients.producer.ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.bootstrapServers());
         props.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-        props.put(org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG, "all");
+        props.put(org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG, "all"); // all replicas must acknowledge
 
         // Schema Registry config
         props.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, properties.schemaRegistryUrl());
@@ -80,5 +90,14 @@ public class KafkaMessagingConfig {
         factory.setConsumerFactory(consumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
+    }
+
+    @Bean
+    @Primary
+    @ConditionalOnMissingBean
+    public OutboundEventPublisher outboundEventPublisher(
+            AvroOutboundEventPublisher avroPublisher,
+            List<EventValidator<?>> validators) {
+        return new ValidatingOutboundEventPublisher(avroPublisher, validators);
     }
 }

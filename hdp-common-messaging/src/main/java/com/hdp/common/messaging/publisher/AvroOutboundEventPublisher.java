@@ -2,15 +2,17 @@ package com.hdp.common.messaging.publisher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
-@RequiredArgsConstructor
 public class AvroOutboundEventPublisher implements OutboundEventPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    public AvroOutboundEventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     @Override
     public void send(Object event, String topic, String key) {

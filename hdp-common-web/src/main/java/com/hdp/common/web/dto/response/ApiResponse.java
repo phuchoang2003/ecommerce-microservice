@@ -1,7 +1,10 @@
 package com.hdp.common.web.dto.response;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ApiResponse<T> extends BaseResponse {
-    private T data;
+    @JsonProperty("data") private T data;
 
     public ApiResponse() {
     }
@@ -15,12 +18,15 @@ public class ApiResponse<T> extends BaseResponse {
         return new ApiResponse<>(data);
     }
 
-    public static <T> ApiResponse<T> success(T data, String message) {
+    public static <T> ApiResponse<T> success(T data, String msg) {
         ApiResponse<T> response = new ApiResponse<>(data);
-        response.message(message);
+        response.setMsg(msg);
         return response;
     }
 
-    public T data() { return data; }
-    public void data(T data) { this.data = data; }
+
+    public T getData() { return data; }
+
+
+    public void setData(T data) { this.data = data; }
 }

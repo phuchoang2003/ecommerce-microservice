@@ -35,6 +35,19 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
         }
     }
 
+    @Override
+    @Transactional
+    public void save(ProductSnapshot snapshot) {
+        ProductSnapshotJpa entity = ProductSnapshotJpa.builder()
+                .productId(snapshot.productId())
+                .variantId(snapshot.variantId())
+                .productName(snapshot.productName())
+                .variantName(snapshot.variantName())
+                .price(snapshot.price())
+                .build();
+        productSnapshotRepository.save(entity);
+    }
+
     private ProductSnapshot toProductSnapshot(ProductSnapshotJpa entity) {
         return ProductSnapshot.builder()
             .productId(entity.getProductId())

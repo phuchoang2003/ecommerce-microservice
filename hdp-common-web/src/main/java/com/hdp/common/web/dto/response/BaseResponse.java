@@ -1,16 +1,17 @@
 package com.hdp.common.web.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseResponse {
-    private boolean success;
-    private String msg;
-    private UUID traceId;
-    private Instant timestamp;
+    @JsonProperty("success") private boolean success;
+    @JsonProperty("msg") private String msg;
+    @JsonProperty("traceId") private UUID traceId;
+    @JsonProperty("timestamp") private Instant timestamp;
 
     public BaseResponse() {
     }
@@ -29,32 +30,10 @@ public class BaseResponse {
     public static BaseResponse success(String message) {
         return new BaseResponse(true, message, null, Instant.now());
     }
+    public void setMsg(String msg) { this.msg = msg; }
 
-    public void success(boolean success) {
-        this.success = success;
-    }
-
-    public String message() {
-        return msg;
-    }
-
-    public void message(String message) {
-        this.msg = message;
-    }
-
-    public UUID traceId() {
-        return traceId;
-    }
-
-    public void traceId(UUID traceId) {
-        this.traceId = traceId;
-    }
-
-    public Instant timestamp() {
-        return timestamp;
-    }
-
-    public void timestamp(Instant timestamp) {
-        this.timestamp = timestamp;
-    }
+    public boolean isSuccess() { return success; }
+    public String getMsg() { return msg; }
+    public UUID getTraceId() { return traceId; }
+    public Instant getTimestamp() { return timestamp; }
 }

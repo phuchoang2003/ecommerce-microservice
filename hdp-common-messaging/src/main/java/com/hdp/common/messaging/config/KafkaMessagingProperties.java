@@ -8,7 +8,8 @@ public record KafkaMessagingProperties(
         String schemaRegistryUrl,
         String consumerGroupId,
         String autoOffsetReset,
-        Boolean specificAvroReader
+        Boolean specificAvroReader,
+        String listenerTopics
 ) {
     public KafkaMessagingProperties {
         bootstrapServers = (bootstrapServers != null) ? bootstrapServers : "localhost:9092";
@@ -16,5 +17,6 @@ public record KafkaMessagingProperties(
         consumerGroupId = (consumerGroupId != null) ? consumerGroupId : "default-group";
         autoOffsetReset = (autoOffsetReset != null) ? autoOffsetReset : "earliest";
         specificAvroReader = (specificAvroReader != null) ? specificAvroReader : Boolean.TRUE;
+        listenerTopics = (listenerTopics != null) ? listenerTopics : "product.events";
     }
 }
