@@ -21,6 +21,7 @@ spring:
       - classpath:application-jpa.yaml
       - classpath:application-swagger.yaml
       - classpath:application-kafka.yaml
+      - classpath:application-aws.yaml
   application:
     name: product-service
   threads:

@@ -20,6 +20,9 @@ public final class BaseMessageKeyConstants {
     public static final String VALIDATION_PAST = "{validation.past}";
     public static final String VALIDATION_FUTURE = "{validation.future}";
     public static final String VALIDATION_ENUM_INVALID = "{validation.enum.invalid}";
+    public static final String VALIDATION_FILE_CONTENT_TYPE_NOT_ALLOWED = "{validation.file.contentTypeNotAllowed}";
+    public static final String VALIDATION_FILE_EXTENSION_NOT_ALLOWED = "{validation.file.extensionNotAllowed}";
+    public static final String VALIDATION_FILE_PATH_TRAVERSAL = "{validation.file.pathTraversal}";
 
     // Error
     public static final String VALIDATION_ERROR = "error.validation";
