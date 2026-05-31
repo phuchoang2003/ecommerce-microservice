@@ -1,21 +1,34 @@
 package com.hdp.common.infrastructure.schedule;
 
-import com.hdp.common.infrastructure.constants.TaskExecutorConstants;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
-public class SchedulerAutoConfiguration implements SchedulingConfigurer {
-    private final Executor executor;
+@Configuration
+@EnableScheduling
+@EnableConfigurationProperties(SchedulerProperties.class)
+public class SchedulerAutoConfiguration {
 
-    public SchedulerAutoConfiguration(@Qualifier(TaskExecutorConstants.SCHEDULER) Executor executor) {
-        this.executor = executor;
+    private final SchedulerProperties properties;
+
+    public SchedulerAutoConfiguration(SchedulerProperties properties) {
+        this.properties = properties;
     }
 
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar registrar) {
-        registrar.setScheduler(this.executor);
+    @Bean
+    public TaskScheduler taskScheduler() {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(
+                properties.poolSize(),
+                Thread.ofVirtual()
+                        .name(properties.threadNamePrefix(), 0)
+                        .factory()
+        );
+        return new ConcurrentTaskScheduler(executor);
     }
 }

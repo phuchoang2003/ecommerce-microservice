@@ -2,7 +2,6 @@ package com.hdp.order_service.infrastructure.adapter.inbound.messaging;
 
 import com.hdp.common.messaging.dispatcher.AvroEventDispatcher;
 import org.apache.avro.specific.SpecificRecord;
-import org.apache.kafka.clients.consumer.internals.Acknowledgements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;

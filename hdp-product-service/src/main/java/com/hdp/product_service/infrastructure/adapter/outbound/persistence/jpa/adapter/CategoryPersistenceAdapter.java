@@ -7,7 +7,6 @@ import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.m
 import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.repository.CategoryRepositoryJpa;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,14 +14,12 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CategoryPersistenceAdapter implements CategoryPersistencePort {
 
     private final CategoryRepositoryJpa categoryRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
-    @Transactional
     public Category save(Category category) {
         CategoryJpa jpa = categoryMapper.toJpa(category);
         jpa = categoryRepository.save(jpa);
@@ -60,7 +57,6 @@ public class CategoryPersistenceAdapter implements CategoryPersistencePort {
     }
 
     @Override
-    @Transactional
     public void softDelete(UUID id) {
         categoryRepository.findByIdAndIsDeletedFalse(id)
                 .ifPresent(category -> {

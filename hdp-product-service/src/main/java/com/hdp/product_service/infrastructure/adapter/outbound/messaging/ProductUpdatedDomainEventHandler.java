@@ -43,7 +43,7 @@ public class ProductUpdatedDomainEventHandler implements DomainEventHandler<Prod
             .setData(data)
             .build();
 
-        publisher.send(avroEvent, PRODUCT_UPDATED_TOPIC, event.getProductId().toString());
+//        publisher.send(avroEvent, PRODUCT_UPDATED_TOPIC, event.getProductId().toString());
         log.info("Published ProductUpdatedEvent to Avro: productId={}", event.getProductId());
     }
 }

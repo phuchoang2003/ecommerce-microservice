@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -17,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 @EnableAsync
 @EnableConfigurationProperties(CpuPoolProperties.class)
 public class TaskExecutorAutoConfiguration {
-    private final String SCHEDULER_THREAD_NAME = "scheduler-vt-";
     private final String IO_BOUND_THREAD_NAME = "io-vt-";
     private final String CPU_BOUND_THREAD_NAME = "cpu-vt-";
     private final int THREAD_START_INDEX = 0;
@@ -36,15 +36,6 @@ public class TaskExecutorAutoConfiguration {
                                 .factory()
                 ),
                 new RequestContextTaskDecorator()
-        );
-    }
-
-    @Bean(name = TaskExecutorConstants.SCHEDULER)
-    public Executor taskScheduler() {
-        return Executors.newThreadPerTaskExecutor(
-                Thread.ofVirtual()
-                        .name(SCHEDULER_THREAD_NAME, THREAD_START_INDEX)
-                        .factory()
         );
     }
 

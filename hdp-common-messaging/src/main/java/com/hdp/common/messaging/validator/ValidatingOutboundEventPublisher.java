@@ -6,6 +6,7 @@ import org.apache.avro.specific.SpecificRecord;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,9 +29,25 @@ public class ValidatingOutboundEventPublisher implements OutboundEventPublisher 
                 validators.size(), validatorMap.keySet());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void send(Object event, String topic, String key) {
+        String eventClassName = event.getClass().getName();
+        log.info("send() called - eventClassName: {}, validatorMap keys: {}",
+                eventClassName, validatorMap.keySet());
+
+        EventValidator<?> validator = validatorMap.get(eventClassName);
+        if (validator != null) {
+            log.info("Validating event type: {}", event.getClass().getSimpleName());
+            ((EventValidator<SpecificRecord>) validator).validate((SpecificRecord) event);
+        } else {
+            log.warn("No validator found for event type: {}, skipping validation", eventClassName);
+        }
+        delegate.send(event, topic, key);
+    }
+
+
+    @Override
+    public void sendAckWait(Object event, String topic, String key, int timeout, TimeUnit timeUnit) throws Exception {
         String eventClassName = event.getClass().getName();
         log.info("send() called - eventClassName: {}, validatorMap keys: {}",
                 eventClassName, validatorMap.keySet());
