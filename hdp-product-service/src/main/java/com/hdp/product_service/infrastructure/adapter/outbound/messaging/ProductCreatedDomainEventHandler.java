@@ -1,16 +1,18 @@
 package com.hdp.product_service.infrastructure.adapter.outbound.messaging;
 
-import com.hdp.common.messaging.publisher.OutboundEventPublisher;
 import com.hdp.core.constant.VersionConstant;
 import com.hdp.core.event.DomainEventHandler;
 import com.hdp.messaging.event.product.ProductCreatedEventData;
 import com.hdp.messaging.event.product.ProductCreatedIntegrationEvent;
-import com.hdp.product_service.constant.KafkaTopicConstants;
+import com.hdp.product_service.application.port.out.OutboxEventPersistencePort;
 import com.hdp.product_service.constant.ProductServiceConstants;
 import com.hdp.product_service.domain.event.ProductCreatedDomainEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -22,10 +24,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProductCreatedDomainEventHandler implements DomainEventHandler<ProductCreatedDomainEvent> {
 
-    private final OutboundEventPublisher publisher;
+    private final OutboxEventPersistencePort outboxEventPersistence;
 
     @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public void handle(ProductCreatedDomainEvent event) {
         ProductCreatedEventData data = ProductCreatedEventData.newBuilder()
             .setProductId(event.getProductId().toString())
@@ -37,17 +40,18 @@ public class ProductCreatedDomainEventHandler implements DomainEventHandler<Prod
             .setStatus(event.getStatus().name())
             .build();
 
-        ProductCreatedIntegrationEvent avroEvent = ProductCreatedIntegrationEvent.newBuilder()
-            .setEventId(UUID.randomUUID().toString())
-            .setEventType("ProductCreated")
-            .setVersion(VersionConstant.VERSION_NUMBER_1)
-            .setSource(ProductServiceConstants.NAME)
-            .setCorrelationId(event.getEventId())
-            .setOccurredAt(Instant.now().toEpochMilli())
-            .setData(data)
-            .build();
+        SpecificRecord avroEvent = ProductCreatedIntegrationEvent.newBuilder()
+                .setEventId(event.getEventId())
+                .setEventType(event.getEventType())
+                .setVersion(VersionConstant.VERSION_NUMBER_1)
+                .setSource(ProductServiceConstants.NAME)
+                .setCorrelationId(event.getProductId().toString())
+                .setOccurredAt(Instant.now().toEpochMilli())
+                .setData(data)
+                .build();
 
-        publisher.send(avroEvent, KafkaTopicConstants.PRODUCT_EVENT_TOPIC, event.getProductId().toString());
-        log.info("Published ProductCreatedIntegrationEvent to Avro: productId={}", event.getProductId());
+
+        outboxEventPersistence.save(event, avroEvent, event.getProductId().toString());
+        log.info("Saved ProductCreatedEventData to Outbox: productId={}", event.getProductId());
     }
 }

@@ -39,7 +39,7 @@ public class ProductDeletedDomainEventHandler implements DomainEventHandler<Prod
             .setData(data)
             .build();
 
-        publisher.send(avroEvent, PRODUCT_DELETED_TOPIC, event.getProductId().toString());
+//        publisher.send(avroEvent, PRODUCT_DELETED_TOPIC, event.getProductId().toString());
         log.info("Published ProductDeletedIntegrationEvent to Avro: productId={}", event.getProductId());
     }
 }

@@ -3,9 +3,7 @@ package com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.
 import com.hdp.product_service.application.port.out.ProductPersistencePort;
 import com.hdp.product_service.domain.model.Product;
 import com.hdp.product_service.domain.model.ProductVariant;
-import com.hdp.product_service.domain.model.valueobject.ProductStatus;
 import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.entity.ProductJpa;
-import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.entity.ProductVariantJpa;
 import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.mapper.ProductMapper;
 import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.repository.ProductRepositoryJpa;
 import com.hdp.product_service.infrastructure.adapter.outbound.persistence.jpa.repository.ProductVariantRepositoryJpa;
@@ -22,7 +20,6 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductPersistenceAdapter implements ProductPersistencePort {
 
     private final ProductRepositoryJpa productRepository;

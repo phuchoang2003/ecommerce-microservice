@@ -54,7 +54,6 @@ dependencies {
     implementation project(':hdp-common-file-storage')
     implementation project(':hdp-common-test')
 
-
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
