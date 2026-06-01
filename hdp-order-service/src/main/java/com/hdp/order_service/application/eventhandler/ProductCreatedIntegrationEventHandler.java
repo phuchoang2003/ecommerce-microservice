@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Component
@@ -23,26 +24,43 @@ public class ProductCreatedIntegrationEventHandler implements AvroEventHandler<P
 
     @Override
     public void handle(ProductCreatedIntegrationEvent record) {
-        log.info("=== ProductCreatedIntegrationEventHandler.handle() called ===");
-        log.info("record class: {}", record.getClass().getName());
-        log.info("eventId: {}", record.getEventId());
-        log.info("eventType: {}", record.getEventType());
-        log.info("data.productId: {}", record.getData().getProductId());
-        log.info("data.name: {}", record.getData().getName());
+        if (record.getData() == null) {
+            log.warn("ProductCreatedIntegrationEvent received with null data, skipping");
+            return;
+        }
 
         var data = record.getData();
-        UUID productId = UUID.fromString(data.getProductId());
+        if (data.getProductId() == null || data.getProductId().isBlank()) {
+            log.warn("ProductCreatedIntegrationEvent received with null/empty productId, skipping");
+            return;
+        }
+
+        UUID productId;
+        try {
+            productId = UUID.fromString(data.getProductId());
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid UUID format for productId: {}, skipping", data.getProductId(), e);
+            return;
+        }
+
+        String name = data.getName();
+        BigDecimal price = data.getPrice();
+
+        if (snapshotPersistencePort.existsByProductIdAndVariantId(productId, productId)) {
+            log.info("Product snapshot already exists, skipping save: productId={}", productId);
+            return;
+        }
 
         ProductSnapshot snapshot = ProductSnapshot.builder()
                 .productId(productId)
                 .variantId(productId)
-                .productName(data.getName())
-                .variantName(data.getName())
-                .price(data.getPrice())
+                .productName(name != null ? name : "Unknown")
+                .variantName(name != null ? name : "Unknown")
+                .price(price != null ? price : BigDecimal.ZERO)
                 .build();
 
-        log.info("Saving snapshot for productId={}", productId);
         snapshotPersistencePort.save(snapshot);
-        log.info("Product snapshot saved successfully: productId={}", productId);
+        log.info("Product snapshot saved: productId={}, name={}, price={}",
+                productId, snapshot.productName(), snapshot.price());
     }
 }
