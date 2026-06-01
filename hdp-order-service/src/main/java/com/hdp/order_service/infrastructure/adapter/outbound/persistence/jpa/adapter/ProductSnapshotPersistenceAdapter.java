@@ -36,6 +36,11 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
     }
 
     @Override
+    public boolean existsByProductIdAndVariantId(UUID productId, UUID variantId) {
+        return productSnapshotRepository.findByProductIdAndVariantId(productId, variantId).isPresent();
+    }
+
+    @Override
     @Transactional
     public void save(ProductSnapshot snapshot) {
         ProductSnapshotJpa entity = ProductSnapshotJpa.builder()
