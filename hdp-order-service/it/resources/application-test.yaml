@@ -1,0 +1,33 @@
+spring:
+  # Skip starting the @KafkaListener container — we drive the dispatcher directly.
+  # The consumer/producer factories are still wired (so the Spring context is realistic),
+  # but no Kafka client is ever created against a broker, so no broker is required.
+  kafka:
+    listener:
+      auto-startup: false
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        generate_statistics: false
+
+  flyway:
+    enabled: true
+    clean-disabled: false
+
+# Override messaging defaults so the @KafkaListener doesn't try to subscribe on init.
+hdp:
+  messaging:
+    bootstrap-servers: localhost:9092
+    schema-registry-url: http://localhost:8085
+    consumer-group-id: order-service-test
+    auto-offset-reset: earliest
+
+logging:
+  level:
+    org.springframework.kafka: WARN
+    org.apache.kafka: WARN
+    com.hdp.order_service: INFO
