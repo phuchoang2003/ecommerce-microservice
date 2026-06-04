@@ -17,15 +17,37 @@ java {
 ext {
     set('lombokVersion', '1.18.42')
     set('archunitVersion', '1.3.0')
-    set('junitVersion', '5.11.0')
-    set('mockitoVersion', '5.11.0')
-    set('assertjVersion', '3.25.3')
-    set('testcontainersVersion', '1.19.7')
+    // JUnit 6 and Mockito are managed by the Spring Boot 4.0.5 BOM via
+    // spring-boot-starter-test — do not pin them here. Earlier pinning of
+    // junitVersion=5.11.0 caused NoSuchMethodError at runtime because Spring
+    // 7.0.x (transitive via Boot 4.0.5) calls JUnit 6 APIs.
+    set('testcontainersVersion', '1.20.4')
+}
+
+// `sourceSets.integrationTest` auto-creates `integrationTestImplementation` and
+// `integrationTestRuntimeOnly` configurations. We declare the source set FIRST,
+// then in the configurations block we use `named(...)` to extend the auto-created
+// configs with the test classpath. We also explicitly wire the main project's
+// compile/runtime classpath so cross-module deps (e.g. hdp-common-messaging) and
+// the main source set's own classes are visible to the IT compiler.
+sourceSets {
+    integrationTest {
+        java.srcDir 'it/java'
+        resources.srcDir 'it/resources'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
 }
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+    }
+    named('integrationTestImplementation') {
+        extendsFrom testImplementation, implementation
+    }
+    named('integrationTestRuntimeOnly') {
+        extendsFrom testRuntimeOnly, runtimeOnly
     }
 }
 
@@ -76,14 +98,47 @@ dependencies {
 
     // ArchUnit for architecture testing
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation "org.junit.platform:junit-platform-engine:1.11.0"
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.11.0"
 
+    // Spring Boot test — BOM brings JUnit 6, Mockito, AssertJ, Spring TestContext.
+    // Do NOT pin JUnit/Mockito versions; they must align with the BOM (Boot 4.0.5).
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Spring Kafka test (EmbeddedKafkaBroker, @EmbeddedKafka)
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+    // Testcontainers (Postgres + JUnit5 extension)
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+
+    // ---- integrationTest source set (it/java + it/resources) ----
+    // IT tests are NOT picked up by `./gradlew test`. Run them with
+    // `./gradlew integrationTest` (or `./gradlew check` which depends on it).
+    integrationTestImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+    integrationTestImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests (Testcontainers, full Spring context).'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+
+    // Sensible defaults for tests that boot a Spring context + DB container.
+    // Override with -Pit.test.timeout=10m if a suite needs more.
+    systemProperty 'junit.jupiter.execution.timeout.default', project.findProperty('it.test.timeout') ?: '5m'
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = false
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'integrationTest'
 }
