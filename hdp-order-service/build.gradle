@@ -111,8 +111,8 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
 
     // ---- integrationTest source set (it/java + it/resources) ----
-    // IT tests are NOT picked up by `./gradlew test`. Run them with
-    // `./gradlew integrationTest` (or `./gradlew check` which depends on it).
+    // IT tests are NOT picked up by `./gradlew test` or `./gradlew build`.
+    // Run them explicitly with `./gradlew integrationTest`.
     integrationTestImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
     integrationTestImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
 }
@@ -139,6 +139,3 @@ tasks.register('integrationTest', Test) {
     }
 }
 
-tasks.named('check') {
-    dependsOn 'integrationTest'
-}

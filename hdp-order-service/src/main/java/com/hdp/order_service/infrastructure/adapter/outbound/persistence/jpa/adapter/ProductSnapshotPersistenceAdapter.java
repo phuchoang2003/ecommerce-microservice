@@ -6,6 +6,9 @@ import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.ProductSnapshotJpa;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.repository.ProductSnapshotRepositoryJpa;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +19,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j
 public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPersistencePort {
 
     private final ProductSnapshotRepositoryJpa productSnapshotRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Map<UUID, ProductSnapshot> findByProductIdIn(List<UUID> productIds) {
         List<ProductSnapshotJpa> entities = productSnapshotRepository.findByProductIdIn(productIds);
         return entities.stream()
@@ -29,6 +33,7 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void validateProductExists(UUID productId, UUID variantId) {
         if (!productSnapshotRepository.existsByProductId(productId)) {
             throw new NotFoundException("Product", productId);
@@ -36,12 +41,13 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByProductIdAndVariantId(UUID productId, UUID variantId) {
         return productSnapshotRepository.findByProductIdAndVariantId(productId, variantId).isPresent();
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void save(ProductSnapshot snapshot) {
         ProductSnapshotJpa entity = ProductSnapshotJpa.builder()
                 .productId(snapshot.productId())
@@ -50,7 +56,12 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
                 .variantName(snapshot.variantName())
                 .price(snapshot.price())
                 .build();
-        productSnapshotRepository.save(entity);
+
+        try {
+            productSnapshotRepository.save(entity);
+        } catch (DuplicateKeyException e) {
+            log.warn("Product snapshot already exists, skipping save: productId={}", snapshot.productId());
+        }
     }
 
     private ProductSnapshot toProductSnapshot(ProductSnapshotJpa entity) {
