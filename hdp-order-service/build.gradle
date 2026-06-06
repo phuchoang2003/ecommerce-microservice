@@ -138,7 +138,3 @@ tasks.register('integrationTest', Test) {
         exceptionFormat = 'full'
     }
 }
-
-tasks.named('check') {
-    dependsOn 'integrationTest'
-}

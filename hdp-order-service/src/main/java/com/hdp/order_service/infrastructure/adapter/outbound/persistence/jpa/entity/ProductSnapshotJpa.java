@@ -4,6 +4,7 @@ import com.hdp.common.persistence.entity.BaseEntityJpa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,13 @@ import java.util.UUID;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "products_snapshot")
+@Table(
+    name = "products_snapshot",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_products_snapshot_product_variant",
+        columnNames = {"product_id", "variant_id"}
+    )
+)
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ProductSnapshotJpa extends BaseEntityJpa {
