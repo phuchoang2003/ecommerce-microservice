@@ -1,14 +1,14 @@
 package com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.adapter;
 
+import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.core.exception.NotFoundException;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
 import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.ProductSnapshotJpa;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.repository.ProductSnapshotRepositoryJpa;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +41,7 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public boolean existsByProductIdAndVariantId(UUID productId, UUID variantId) {
-        return productSnapshotRepository.findByProductIdAndVariantId(productId, variantId).isPresent();
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void save(ProductSnapshot snapshot) {
         ProductSnapshotJpa entity = ProductSnapshotJpa.builder()
                 .productId(snapshot.productId())
@@ -58,9 +52,10 @@ public class ProductSnapshotPersistenceAdapter implements ProductionSnapshotPers
                 .build();
 
         try {
-            productSnapshotRepository.save(entity);
-        } catch (DuplicateKeyException e) {
-            log.warn("Product snapshot already exists, skipping save: productId={}", snapshot.productId());
+            productSnapshotRepository.saveAndFlush(entity);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateKeyBusinessException("ProductSnapshot",
+                    snapshot.productId() + "/" + snapshot.variantId(), e);
         }
     }
 

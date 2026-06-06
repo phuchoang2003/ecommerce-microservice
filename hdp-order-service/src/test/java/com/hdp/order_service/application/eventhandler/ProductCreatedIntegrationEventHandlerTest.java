@@ -1,5 +1,6 @@
 package com.hdp.order_service.application.eventhandler;
 
+import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.messaging.event.product.ProductCreatedEventData;
 import com.hdp.messaging.event.product.ProductCreatedIntegrationEvent;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.*;
  * <p>Test scenarios:
  * <ul>
  *   <li>Valid event - should save snapshot</li>
- *   <li>Duplicate event (idempotency) - should skip save</li>
+ *   <li>Duplicate event (idempotency) - DuplicateKeyBusinessException is swallowed</li>
  *   <li>Null data - should skip without saving</li>
  *   <li>Null/empty/invalid productId - should skip without saving</li>
  *   <li>Null name - should use "Unknown" default</li>
@@ -48,8 +49,6 @@ class ProductCreatedIntegrationEventHandlerTest {
         UUID productId = UUID.randomUUID();
         ProductCreatedIntegrationEvent record = createEvent(productId.toString(), "Test Product", new BigDecimal("99.99"));
 
-        when(snapshotPersistencePort.existsByProductIdAndVariantId(productId, productId)).thenReturn(false);
-
         handler.handle(record);
 
         ArgumentCaptor<ProductSnapshot> captor = ArgumentCaptor.forClass(ProductSnapshot.class);
@@ -64,15 +63,16 @@ class ProductCreatedIntegrationEventHandlerTest {
     }
 
     @Test
-    void handle_withDuplicateEvent_shouldSkipSave() {
+    void handle_withDuplicateEvent_shouldSwallowDuplicateKey() {
         UUID productId = UUID.randomUUID();
         ProductCreatedIntegrationEvent record = createEvent(productId.toString(), "Test Product", new BigDecimal("99.99"));
 
-        when(snapshotPersistencePort.existsByProductIdAndVariantId(productId, productId)).thenReturn(true);
+        doThrow(new DuplicateKeyBusinessException("ProductSnapshot", productId + "/" + productId))
+                .when(snapshotPersistencePort).save(any());
 
-        handler.handle(record);
+        assertDoesNotThrow(() -> handler.handle(record));
 
-        verify(snapshotPersistencePort, never()).save(any());
+        verify(snapshotPersistencePort).save(any());
     }
 
     @Test
@@ -83,7 +83,6 @@ class ProductCreatedIntegrationEventHandlerTest {
         handler.handle(record);
 
         verify(snapshotPersistencePort, never()).save(any());
-        verify(snapshotPersistencePort, never()).existsByProductIdAndVariantId(any(), any());
     }
 
     @Test
@@ -97,7 +96,6 @@ class ProductCreatedIntegrationEventHandlerTest {
         handler.handle(record);
 
         verify(snapshotPersistencePort, never()).save(any());
-        verify(snapshotPersistencePort, never()).existsByProductIdAndVariantId(any(), any());
     }
 
     @Test
@@ -137,8 +135,6 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
 
-        when(snapshotPersistencePort.existsByProductIdAndVariantId(productId, productId)).thenReturn(false);
-
         handler.handle(record);
 
         ArgumentCaptor<ProductSnapshot> captor = ArgumentCaptor.forClass(ProductSnapshot.class);
@@ -158,8 +154,6 @@ class ProductCreatedIntegrationEventHandlerTest {
 
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
-
-        when(snapshotPersistencePort.existsByProductIdAndVariantId(productId, productId)).thenReturn(false);
 
         handler.handle(record);
 

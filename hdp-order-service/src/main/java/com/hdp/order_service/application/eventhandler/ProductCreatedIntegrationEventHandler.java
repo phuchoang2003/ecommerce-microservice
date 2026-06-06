@@ -1,6 +1,7 @@
 package com.hdp.order_service.application.eventhandler;
 
 import com.hdp.common.messaging.dispatcher.AvroEventHandler;
+import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.messaging.event.product.ProductCreatedIntegrationEvent;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
 import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
@@ -46,11 +47,6 @@ public class ProductCreatedIntegrationEventHandler implements AvroEventHandler<P
         String name = data.getName();
         BigDecimal price = data.getPrice();
 
-        if (snapshotPersistencePort.existsByProductIdAndVariantId(productId, productId)) {
-            log.info("Product snapshot already exists, skipping save: productId={}", productId);
-            return;
-        }
-
         ProductSnapshot snapshot = ProductSnapshot.builder()
                 .productId(productId)
                 .variantId(productId)
@@ -59,8 +55,12 @@ public class ProductCreatedIntegrationEventHandler implements AvroEventHandler<P
                 .price(price != null ? price : BigDecimal.ZERO)
                 .build();
 
-        snapshotPersistencePort.save(snapshot);
-        log.info("Product snapshot saved: productId={}, name={}, price={}",
-                productId, snapshot.productName(), snapshot.price());
+        try {
+            snapshotPersistencePort.save(snapshot);
+            log.info("Product snapshot saved: productId={}, name={}, price={}",
+                    productId, snapshot.productName(), snapshot.price());
+        } catch (DuplicateKeyBusinessException e) {
+            log.info("Duplicate product snapshot, treating as idempotent no-op: productId={}", productId);
+        }
     }
 }

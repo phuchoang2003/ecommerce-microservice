@@ -98,7 +98,7 @@ class ProductCreatedIntegrationEventHandlerIT extends AbstractPostgresIntegratio
     }
 
     @Test
-    @DisplayName("Concurrent duplicate deliveries expose the TOCTOU race in the dedup check")
+    @DisplayName("Concurrent duplicate deliveries are deduped via UNIQUE constraint + DuplicateKeyBusinessException")
     void concurrentDuplicates_exposeRace() throws Exception {
         UUID productId = UUID.randomUUID();
         ProductCreatedIntegrationEvent event =
@@ -122,10 +122,10 @@ class ProductCreatedIntegrationEventHandlerIT extends AbstractPostgresIntegratio
         pool.shutdown();
 
         long count = repository.findByProductIdIn(List.of(productId)).size();
-        // Application-level dedup is racy: exists() then save() are two separate
-        // transactions. Under contention, more than one row can be persisted.
-        // Asserting >= 1 keeps the test stable; flip to == 1 to surface the race.
-        assertThat(count).isGreaterThanOrEqualTo(1);
+        // UNIQUE constraint on (product_id, variant_id) + handler catching
+        // DuplicateKeyBusinessException guarantees exactly one row under
+        // concurrent duplicate deliveries.
+        assertThat(count).isEqualTo(1);
     }
 
     private ProductCreatedIntegrationEvent buildEvent(UUID productId, String name, BigDecimal price) {
