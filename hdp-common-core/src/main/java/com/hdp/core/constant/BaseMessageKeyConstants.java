@@ -32,6 +32,7 @@ public final class BaseMessageKeyConstants {
     public static final String FORBIDDEN = "error.forbidden";
     public static final String CONSTRAINT_VIOLATION = "error.constraint_violation";
     public static final String CONSTRAINT_DECLARATION_ERROR = "error.constraint_declaration";
+    public static final String DUPLICATE_KEY = "error.duplicate_key";
     public static final String INTERNAL_ERROR = "error.internal";
 
     private BaseMessageKeyConstants() {}

@@ -10,6 +10,7 @@ public final class CodeConstants {
     public static final String E005 = "E005";
     public static final String E006 = "E006";
     public static final String E007 = "E007";
+    public static final String E008 = "E008";
     public static final String E500 = "E500";
 
     private CodeConstants() {}

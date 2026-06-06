@@ -30,6 +30,7 @@ public final class ErrorCodeHttpMapper {
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
             case FORBIDDEN -> HttpStatus.FORBIDDEN;
+            case DUPLICATE_KEY -> HttpStatus.CONFLICT;
             case INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
@@ -43,6 +44,7 @@ public final class ErrorCodeHttpMapper {
             case FORBIDDEN -> "forbidden";
             case CONSTRAINT_VIOLATION -> "constraint-violation";
             case CONSTRAINT_DECLARATION_ERROR -> "constraint-declaration";
+            case DUPLICATE_KEY -> "duplicate-key";
             case INTERNAL_ERROR -> "internal";
         };
         return URI.create(PROBLEM_URI_BASE + typeName);

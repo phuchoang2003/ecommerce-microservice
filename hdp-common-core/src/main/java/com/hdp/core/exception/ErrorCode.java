@@ -16,6 +16,7 @@ public enum ErrorCode {
     FORBIDDEN(CodeConstants.E005, BaseMessageKeyConstants.FORBIDDEN),
     CONSTRAINT_VIOLATION(CodeConstants.E006, BaseMessageKeyConstants.CONSTRAINT_VIOLATION),
     CONSTRAINT_DECLARATION_ERROR(CodeConstants.E007, BaseMessageKeyConstants.CONSTRAINT_DECLARATION_ERROR),
+    DUPLICATE_KEY(CodeConstants.E008, BaseMessageKeyConstants.DUPLICATE_KEY),
     INTERNAL_ERROR(CodeConstants.E500, BaseMessageKeyConstants.INTERNAL_ERROR);
 
     private final String code;
