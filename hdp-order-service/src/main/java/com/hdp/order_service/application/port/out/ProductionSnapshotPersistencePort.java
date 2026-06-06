@@ -12,7 +12,5 @@ public interface ProductionSnapshotPersistencePort {
 
     void validateProductExists(UUID productId, UUID variantId);
 
-    boolean existsByProductIdAndVariantId(UUID productId, UUID variantId);
-
     void save(ProductSnapshot snapshot);
 }
