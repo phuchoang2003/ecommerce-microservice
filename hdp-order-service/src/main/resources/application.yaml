@@ -47,3 +47,7 @@ logging:
     net.ttddyy.dsproxy.listener: DEBUG
     org.springframework.web.cors: DEBUG
     org.springframework.web.filter: DEBUG
+    org.apache.kafka: OFF
+    kafka: OFF
+    org.springframework.cache: TRACE
+    root: warn

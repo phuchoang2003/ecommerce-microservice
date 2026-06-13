@@ -39,8 +39,7 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
-        String requestUri = request.getRequestURI();
-        String path = stripContextPath(requestUri, request.getContextPath());
+        String path = request.getRequestURI();
         if (!shouldLog(path)) {
             filterChain.doFilter(request, response);
             return;
@@ -61,7 +60,7 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
             String body = getResponseBody(wrappedResponse);
 
             log.info("{} {} - {}ms - status={} | body={}",
-                    request.getMethod(), requestUri, duration, status, truncate(body));
+                    request.getMethod(), path, duration, status, truncate(body));
 
             wrappedResponse.copyBodyToResponse();
         }
