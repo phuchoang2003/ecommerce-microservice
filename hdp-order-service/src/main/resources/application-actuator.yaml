@@ -1,0 +1,15 @@
+app:
+  observability:
+    application: ${spring.application.name}
+    environment: ${ENVIRONMENT:development}
+    version: ${VERSION:0.0.1-SNAPSHOT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true

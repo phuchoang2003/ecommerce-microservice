@@ -21,6 +21,7 @@ spring:
       - classpath:application-datasource.yaml
       - classpath:application-jpa.yaml
       - classpath:application-swagger.yaml
+      - classpath:application-actuator.yaml 
   application:
     name: order-service
   threads:
@@ -42,6 +43,7 @@ info:
 
 logging:
   level:
+    com.zaxxer.hikari: DEBUG
     net.ttddyy.dsproxy.listener: DEBUG
     org.springframework.web.cors: DEBUG
     org.springframework.web.filter: DEBUG
