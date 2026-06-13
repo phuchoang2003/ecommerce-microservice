@@ -1,17 +1,23 @@
 package com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.adapter;
 
 import com.hdp.order_service.application.port.out.OrderPersistencePort;
-import com.hdp.order_service.application.port.out.OrderStatusHistoryPersistencePort;
-import com.hdp.order_service.domain.model.*;
+import com.hdp.order_service.domain.model.AppliedCoupon;
+import com.hdp.order_service.domain.model.Order;
+import com.hdp.order_service.domain.model.OrderItem;
+import com.hdp.order_service.domain.model.OrderStatusHistory;
+import com.hdp.order_service.domain.model.SubOrder;
 import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
-import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.*;
-import com.hdp.order_service.infrastructure.adapter.outbound.persistence.mapper.OrderMapper;
+import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.AppliedCouponJpa;
+import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderItemJpa;
+import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderJpa;
+import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderStatusHistoryJpa;
+import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.SubOrderJpa;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.repository.OrderRepositoryJpa;
-import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.repository.OrderStatusHistoryRepositoryJpa;
+import com.hdp.order_service.infrastructure.adapter.outbound.persistence.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +29,6 @@ import java.util.UUID;
 public class OrderPersistenceAdapter implements OrderPersistencePort {
 
     private final OrderRepositoryJpa orderRepository;
-    private final OrderStatusHistoryRepositoryJpa historyRepository;
     private final OrderMapper orderMapper;
 
     @Override
@@ -124,6 +129,7 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Order> findByIdAndNotDeleted(UUID id) {
         return orderRepository.findByIdAndNotDeleted(id)
                 .map(orderMapper::toDomain);
