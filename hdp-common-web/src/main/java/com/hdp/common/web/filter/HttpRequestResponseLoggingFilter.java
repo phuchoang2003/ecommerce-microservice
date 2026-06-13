@@ -39,7 +39,8 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
-        String path = request.getRequestURI();
+        String requestUri = request.getRequestURI();
+        String path = stripContextPath(requestUri, request.getContextPath());
         if (!shouldLog(path)) {
             filterChain.doFilter(request, response);
             return;
@@ -60,7 +61,7 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
             String body = getResponseBody(wrappedResponse);
 
             log.info("{} {} - {}ms - status={} | body={}",
-                    request.getMethod(), path, duration, status, truncate(body));
+                    request.getMethod(), requestUri, duration, status, truncate(body));
 
             wrappedResponse.copyBodyToResponse();
         }
@@ -72,6 +73,13 @@ public class HttpRequestResponseLoggingFilter extends OncePerRequestFilter {
         }
         return properties.includePatterns().isEmpty() ||
                properties.includePatterns().stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
+    }
+
+    private String stripContextPath(String uri, String contextPath) {
+        if (contextPath == null || contextPath.isEmpty() || "/".equals(contextPath)) {
+            return uri;
+        }
+        return uri.startsWith(contextPath) ? uri.substring(contextPath.length()) : uri;
     }
 
     private String getResponseBody(ContentCachingResponseWrapper response) {

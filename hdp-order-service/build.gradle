@@ -76,6 +76,7 @@ dependencies {
     implementation project(':hdp-common-infrastructure')
     implementation project(':hdp-common-persistence')
     implementation project(':hdp-common-messaging')
+    implementation project(':hdp-common-observability')
     implementation project(':hdp-common-test')
 
     // Spring Boot

@@ -50,7 +50,15 @@ dependencies {
     api 'org.springframework.kafka:spring-kafka'
 
     // Confluent Schema Registry & Avro
-    api "io.confluent:kafka-avro-serializer:${confluentVersion}"
+    // Exclude legacy swagger-annotations:2.1.10 — it shares the same FQN
+    // (io.swagger.v3.oas.annotations.media.Schema) as swagger-annotations-jakarta
+    // but lacks requiredMode() (added in 2.2.0). On a Boot 4.x + springdoc
+    // classpath the older artifact wins, causing NoSuchMethodError on the
+    // /v3/api-docs endpoint. The -jakarta 2.2.27 brought in by springdoc
+    // is a drop-in superset, so dropping the old one is safe.
+    api("io.confluent:kafka-avro-serializer:${confluentVersion}") {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-annotations'
+    }
     api "org.apache.avro:avro:${avroVersion}"
 
     // Spring Boot
