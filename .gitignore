@@ -79,7 +79,9 @@ test-output/
 
 # Kotlin (if used)
 *.kt.bak
-.gradle/
 
 # Build timestamp / version info
 version.txt
+
+
+

@@ -122,6 +122,10 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+tasks.named('bootJar') {
+    archiveFileName = 'hdp-order-service-0.0.1-SNAPSHOT.jar'
+}
+
 tasks.register('integrationTest', Test) {
     description = 'Runs integration tests (Testcontainers, full Spring context).'
     group = 'verification'

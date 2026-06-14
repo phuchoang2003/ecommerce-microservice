@@ -1,6 +1,54 @@
 version: "3.8"
 
 services:
+  prometheus:
+    image: prom/prometheus:main-distroless
+    ports:
+      - "9090:9090"
+    volumes:
+    - ./monitoring/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    networks:
+      - ecommerce-net
+
+  grafana:
+    image: grafana/grafana-oss:13.0.2
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_DOMAIN=localhost
+    volumes:
+      - ./monitoring/grafana/provisioning/datasource:/etc/grafana/provisioning/datasources:ro
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ecommerce-net
+
+  order-service:
+    build:
+      context: .
+      dockerfile: hdp-order-service/dockerfile
+    image: hdp-order-service:latest
+    container_name: order-service
+    ports:
+      - "8080:8080"
+    environment:
+      # DB: order-db:5432 is the in-container port (host port 5433 is for the
+      # host machine only).
+      DB_URL: jdbc:postgresql://order-db:5432/order_db
+      DB_USERNAME: hdp_user
+      DB_PASSWORD: postgres
+      # Kafka: use the internal listener, not the host-mapped one.
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      order-db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - ecommerce-net
+
   order-db:
     image: postgres:18.3
     restart: always
@@ -16,6 +64,13 @@ services:
           memory: 256M
     volumes:
       - order_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hdp_user -d order_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
 
   product-db:
     image: postgres:18.3
@@ -32,6 +87,8 @@ services:
           memory: 256M
     volumes:
       - product_data:/var/lib/postgresql
+    networks:
+      - ecommerce-net
 
   kafka:
     image: apache/kafka:3.7.0
@@ -52,6 +109,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "false"
+    networks:
+      - ecommerce-net
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -67,6 +126,8 @@ services:
 
     depends_on:
       - kafka
+    networks:
+      - ecommerce-net
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.5.0
@@ -81,7 +142,14 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_MIN_INSYNC_REPLICAS: 1
     depends_on:
       - kafka
+    networks:
+      - ecommerce-net
 
 volumes:
   order_data:
   product_data:
+  grafana-data:
+
+networks:
+  ecommerce-net:
+    driver: bridge
