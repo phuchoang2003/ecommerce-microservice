@@ -1,0 +1,25 @@
+## Stage 1: Build the application
+FROM eclipse-temurin:25-jdk AS build
+
+WORKDIR /app
+
+# Build context must be the project root (one level above this file).
+# The order-service module, common libs, and gradlew all need to be visible
+# to Gradle so :hdp-order-service:build can resolve project dependencies.
+COPY . .
+
+# Strip Windows CRLF on gradlew (otherwise the shebang is broken on Linux)
+# and make it executable.
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
+
+RUN ./gradlew :hdp-order-service:bootJar -x test
+
+## Stage 2: Package the application
+FROM eclipse-temurin:25-jre
+
+WORKDIR /app
+COPY --from=build /app/hdp-order-service/build/libs/hdp-order-service-0.0.1-SNAPSHOT.jar order-service.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "order-service.jar"]
