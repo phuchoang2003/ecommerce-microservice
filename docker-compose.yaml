@@ -1,6 +1,15 @@
 version: "3.8"
 
 services:
+  redis:
+    image: redis:8.8.1-trixie
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+
   prometheus:
     image: prom/prometheus:main-distroless
     ports:
@@ -149,6 +158,7 @@ volumes:
   order_data:
   product_data:
   grafana-data:
+  redis_data:
 
 networks:
   ecommerce-net:
