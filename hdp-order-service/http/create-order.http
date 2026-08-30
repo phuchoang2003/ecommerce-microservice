@@ -1,0 +1,144 @@
+### ---------------------------------------------------------------
+### POST /v1/orders — Create order
+### OrderController.createOrder
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+# @name create-order-happy
+### [1] Happy path - multiple items + coupons
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "COD",
+  "items": [
+    {
+      "sellerId": "{{sellerId}}",
+      "productId": "{{productId}}",
+      "variantId": "{{variantId}}",
+      "quantity": 2
+    },
+    {
+      "sellerId": "{{sellerId}}",
+      "productId": "{{productId}}",
+      "quantity": 1
+    }
+  ],
+  "couponCodes": ["SUMMER2026", "FREESHIP"]
+}
+
+###
+# @name create-order-minimal
+### [2] Minimal - single item, no coupons, no variant
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "BANK_TRANSFER",
+  "items": [
+    {
+      "sellerId": "{{sellerId}}",
+      "productId": "{{productId}}",
+      "quantity": 1
+    }
+  ]
+}
+
+###
+# @name create-order-payment-methods
+### [3] Happy path - iterate each payment method
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "E_WALLET",
+  "items": [
+    {
+      "sellerId": "{{sellerId}}",
+      "productId": "{{productId}}",
+      "variantId": "{{variantId}}",
+      "quantity": 3
+    }
+  ],
+  "couponCodes": ["WELCOME10"]
+}
+
+###
+# @name create-order-missing-buyer
+### [4] Validation - missing buyerId (expect 400)
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "COD",
+  "items": [
+    { "sellerId": "{{sellerId}}", "productId": "{{productId}}", "quantity": 1 }
+  ]
+}
+
+###
+# @name create-order-empty-items
+### [5] Validation - empty items array (expect 400)
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "COD",
+  "items": []
+}
+
+###
+# @name create-order-invalid-payment
+### [6] Validation - invalid paymentMethod (expect 400)
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "BITCOIN",
+  "items": [
+    { "sellerId": "{{sellerId}}", "productId": "{{productId}}", "quantity": 1 }
+  ]
+}
+
+###
+# @name create-order-invalid-quantity
+### [7] Validation - quantity < 1 (expect 400)
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "COD",
+  "items": [
+    { "sellerId": "{{sellerId}}", "productId": "{{productId}}", "quantity": 0 }
+  ]
+}
+
+###
+# @name create-order-blank-coupon
+### [8] Validation - blank couponCode (expect 400)
+POST {{orderBase}}
+Content-Type: {{contentType}}
+
+{
+  "buyerId": "{{buyerId}}",
+  "shippingAddressId": "{{shippingAddressId}}",
+  "paymentMethod": "CREDIT_CARD",
+  "items": [
+    { "sellerId": "{{sellerId}}", "productId": "{{productId}}", "quantity": 1 }
+  ],
+  "couponCodes": [""]
+}

@@ -1,0 +1,46 @@
+### ---------------------------------------------------------------
+### GET /v1/orders — List orders (paged, filtered)
+### OrderController.listOrders
+### Query params:
+###   - buyerId (optional, UUID)
+###   - status  (optional, OrderStatus enum)
+###   - page    (default 0)
+###   - size    (default 20)
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name list-orders-default
+### [1] Default paging - no filters
+GET {{orderBase}}?page=0&size=20
+
+###
+# @name list-orders-buyer-only
+### [2] Filter by buyerId only
+GET {{orderBase}}?buyerId={{buyerId}}&page=0&size=20
+
+###
+# @name list-orders-status-only
+### [3] Filter by status only
+GET {{orderBase}}?status=PENDING&page=0&size=20
+
+###
+# @name list-orders-buyer-status
+### [4] Filter by buyerId + status
+GET {{orderBase}}?buyerId={{buyerId}}&status=CONFIRMED&page=0&size=20
+
+###
+# @name list-orders-small-page
+### [5] Small page size
+GET {{orderBase}}?buyerId={{buyerId}}&page=0&size=5
+
+###
+# @name list-orders-page-out-of-range
+### [6] Page index beyond results (expect empty)
+GET {{orderBase}}?buyerId={{buyerId}}&page=999&size=20
+
+###
+# @name list-orders-invalid-status
+### [7] Invalid status enum (expect 400)
+GET {{orderBase}}?status=NOT_A_STATUS&page=0&size=20

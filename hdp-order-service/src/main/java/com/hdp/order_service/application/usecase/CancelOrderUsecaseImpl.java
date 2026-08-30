@@ -11,8 +11,6 @@ import com.hdp.order_service.domain.model.OrderStatusHistory;
 import com.hdp.order_service.domain.model.SubOrder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +21,6 @@ public class CancelOrderUsecaseImpl implements CancelOrderUsecase {
 
     private final OrderPersistencePort orderPersistence;
     private final OrderStatusHistoryPersistencePort historyPersistence;
-    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     @Transactional

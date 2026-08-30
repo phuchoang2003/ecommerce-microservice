@@ -1,0 +1,16 @@
+### ---------------------------------------------------------------
+### GET /v1/orders/{orderId}/items — Items of an order
+### OrderController.getOrderItems
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name get-order-items-ok
+### [1] Happy path
+GET {{orderBase}}/{{orderId}}/items
+
+###
+# @name get-order-items-not-found
+### [2] Order not found (expect 404)
+GET {{orderBase}}/{{randomUuid}}/items

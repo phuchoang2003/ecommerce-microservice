@@ -1,0 +1,16 @@
+### ---------------------------------------------------------------
+### GET /api/v1/sub-orders/{subOrderId}/items — Items of a sub-order
+### SubOrderController.getSubOrderItems
+### ---------------------------------------------------------------
+
+@subOrderBase = {{host}}/api/v1/sub-orders
+
+###
+# @name get-sub-order-items-ok
+### [1] Happy path
+GET {{subOrderBase}}/{{subOrderId}}/items
+
+###
+# @name get-sub-order-items-not-found
+### [2] Non-existent sub-order (expect 404)
+GET {{subOrderBase}}/{{randomUuid}}/items

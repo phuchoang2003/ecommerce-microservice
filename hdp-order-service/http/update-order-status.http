@@ -1,0 +1,74 @@
+### ---------------------------------------------------------------
+### PATCH /v1/orders/{id}/status — Update order status
+### OrderController.updateOrderStatus
+### Body: { status: OrderStatus, changedBy: UUID, reason?: String }
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name update-order-status-pending-to-paid
+### [1] PENDING -> PAID (happy path)
+PATCH {{orderBase}}/{{orderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "PAID",
+  "changedBy": "{{changedBy}}",
+  "reason": "Payment confirmed"
+}
+
+###
+# @name update-order-status-paid-to-processing
+### [2] PAID -> PROCESSING
+PATCH {{orderBase}}/{{orderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "PROCESSING",
+  "changedBy": "{{changedBy}}",
+  "reason": "Forwarded to fulfillment"
+}
+
+###
+# @name update-order-status-no-reason
+### [3] No reason field
+PATCH {{orderBase}}/{{orderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "COMPLETED",
+  "changedBy": "{{changedBy}}"
+}
+
+###
+# @name update-order-status-missing-status
+### [4] Validation - missing status (expect 400)
+PATCH {{orderBase}}/{{orderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "changedBy": "{{changedBy}}"
+}
+
+###
+# @name update-order-status-missing-changedBy
+### [5] Validation - missing changedBy (expect 400)
+PATCH {{orderBase}}/{{orderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "PAID",
+  "reason": "who?"
+}
+
+###
+# @name update-order-status-invalid-enum
+### [6] Validation - invalid status string (expect 400)
+PATCH {{orderBase}}/{{orderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "FOO",
+  "changedBy": "{{changedBy}}"
+}

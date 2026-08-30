@@ -24,6 +24,7 @@ spring:
       - classpath:application-jpa.yaml
       - classpath:application-swagger.yaml
       - classpath:application-actuator.yaml
+      - classpath:application-redis.yaml
   threads:
     virtual:
       enabled: true

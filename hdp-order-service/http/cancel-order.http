@@ -1,0 +1,38 @@
+### ---------------------------------------------------------------
+### POST /v1/orders/{id}/cancel — Cancel order
+### OrderController.cancelOrder
+### Body: { cancelledBy: UUID, reason?: String }
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name cancel-order-with-reason
+### [1] Happy path - with reason
+POST {{orderBase}}/{{orderId}}/cancel
+Content-Type: {{contentType}}
+
+{
+  "cancelledBy": "{{changedBy}}",
+  "reason": "Customer changed mind"
+}
+
+###
+# @name cancel-order-no-reason
+### [2] Happy path - without reason (optional field)
+POST {{orderBase}}/{{orderId}}/cancel
+Content-Type: {{contentType}}
+
+{
+  "cancelledBy": "{{changedBy}}"
+}
+
+###
+# @name cancel-order-missing-cancelledBy
+### [3] Validation - missing cancelledBy (expect 400)
+POST {{orderBase}}/{{orderId}}/cancel
+Content-Type: {{contentType}}
+
+{
+  "reason": "no one is cancelling"
+}

@@ -1,0 +1,62 @@
+### ---------------------------------------------------------------
+### PATCH /api/v1/sub-orders/{id}/tracking — Update tracking info
+### SubOrderController.updateSubOrderTracking
+### Body: { trackingNumber?, carrier?, estimatedDelivery?, note? }
+### All fields are optional.
+### ---------------------------------------------------------------
+
+@subOrderBase = {{host}}/api/v1/sub-orders
+
+###
+# @name update-sub-order-tracking-full
+### [1] Happy path - all fields
+PATCH {{subOrderBase}}/{{subOrderId}}/tracking
+Content-Type: {{contentType}}
+
+{
+  "trackingNumber": "VN123456789",
+  "carrier": "GHTK",
+  "estimatedDelivery": "2026-09-05",
+  "note": "Leave at front desk if no one is home"
+}
+
+###
+# @name update-sub-order-tracking-just-number
+### [2] Minimal - trackingNumber only
+PATCH {{subOrderBase}}/{{subOrderId}}/tracking
+Content-Type: {{contentType}}
+
+{
+  "trackingNumber": "SPX987654321"
+}
+
+###
+# @name update-sub-order-tracking-no-carrier
+### [3] Tracking number + estimated delivery (no carrier)
+PATCH {{subOrderBase}}/{{subOrderId}}/tracking
+Content-Type: {{contentType}}
+
+{
+  "trackingNumber": "GH20260901",
+  "estimatedDelivery": "2026-09-03"
+}
+
+###
+# @name update-sub-order-tracking-empty
+### [4] Empty body - clears nothing (all fields optional, no-op equivalent)
+PATCH {{subOrderBase}}/{{subOrderId}}/tracking
+Content-Type: {{contentType}}
+
+{}
+
+###
+# @name update-sub-order-tracking-not-found
+### [5] Non-existent sub-order (expect 404)
+PATCH {{subOrderBase}}/{{randomUuid}}/tracking
+Content-Type: {{contentType}}
+
+{
+  "trackingNumber": "VN000",
+  "carrier": "GHTK",
+  "estimatedDelivery": "2026-09-10"
+}

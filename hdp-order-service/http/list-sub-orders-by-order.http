@@ -1,0 +1,16 @@
+### ---------------------------------------------------------------
+### GET /v1/orders/{orderId}/sub-orders — Sub-orders of an order
+### OrderController.listSubOrders
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name list-sub-orders-ok
+### [1] Happy path
+GET {{orderBase}}/{{orderId}}/sub-orders
+
+###
+# @name list-sub-orders-not-found
+### [2] Order not found (expect 404)
+GET {{orderBase}}/{{randomUuid}}/sub-orders

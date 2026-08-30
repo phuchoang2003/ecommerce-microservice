@@ -1,46 +1,41 @@
 package com.hdp.common.web.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.slf4j.MDC;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
-public class PagedResponse<T> extends BaseResponse {
-    private List<T> data;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-    private boolean hasNext;
-    private boolean hasPrevious;
+import static com.hdp.core.constant.RequestContextConstants.TRACE_ID;
 
-    public PagedResponse() {
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record PagedResponse<T>(
+        boolean success,
+        String msg,
+        UUID traceId,
+        Instant timestamp,
+        List<T> data,
+        int page,
+        int size,
+        long totalElements,
+        int totalPages,
+        boolean hasNext,
+        boolean hasPrevious) {
 
-    public PagedResponse(List<T> data, int page, int size, long totalElements) {
-        super(true, null, null, null);
-        this.data = data;
-        this.page = page;
-        this.size = size;
-        this.totalElements = totalElements;
-        this.totalPages = (int) Math.ceil((double) totalElements / size);
-        this.hasNext = page < totalPages - 1;
-        this.hasPrevious = page > 0;
+    public PagedResponse {
+        if (traceId == null) {
+            String raw = MDC.get(TRACE_ID);
+            if (raw != null) traceId = UUID.fromString(raw);
+        }
+        if (timestamp == null) timestamp = Instant.now();
     }
 
     public static <T> PagedResponse<T> of(List<T> data, int page, int size, long totalElements) {
-        return new PagedResponse<>(data, page, size, totalElements);
+        int totalPages = size > 0 ? (int) Math.ceil((double) totalElements / size) : 0;
+        boolean hasNext = page < totalPages - 1;
+        boolean hasPrevious = page > 0;
+        return new PagedResponse<>(true, null, null, null, data, page, size, totalElements,
+                totalPages, hasNext, hasPrevious);
     }
-
-    public List<T> data() { return data; }
-    public void data(List<T> data) { this.data = data; }
-    public int page() { return page; }
-    public void page(int page) { this.page = page; }
-    public int size() { return size; }
-    public void size(int size) { this.size = size; }
-    public long totalElements() { return totalElements; }
-    public void totalElements(long totalElements) { this.totalElements = totalElements; }
-    public int totalPages() { return totalPages; }
-    public void totalPages(int totalPages) { this.totalPages = totalPages; }
-    public boolean hasNext() { return hasNext; }
-    public void hasNext(boolean hasNext) { this.hasNext = hasNext; }
-    public boolean hasPrevious() { return hasPrevious; }
-    public void hasPrevious(boolean hasPrevious) { this.hasPrevious = hasPrevious; }
 }
