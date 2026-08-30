@@ -1,0 +1,16 @@
+### ---------------------------------------------------------------
+### GET /v1/orders/{orderId}/coupons — Applied coupons
+### OrderController.getAppliedCoupons
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name get-applied-coupons-ok
+### [1] Happy path - order with coupons applied
+GET {{orderBase}}/{{orderId}}/coupons
+
+###
+# @name get-applied-coupons-no-coupons
+### [2] Order without coupons (expect empty list)
+GET {{orderBase}}/{{randomUuid}}/coupons

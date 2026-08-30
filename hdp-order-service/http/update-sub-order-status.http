@@ -1,0 +1,74 @@
+### ---------------------------------------------------------------
+### PATCH /api/v1/sub-orders/{id}/status — Update sub-order status
+### SubOrderController.updateSubOrderStatus
+### Body: { status: SubOrderStatus, changedBy: UUID, reason?: String }
+### ---------------------------------------------------------------
+
+@subOrderBase = {{host}}/api/v1/sub-orders
+
+###
+# @name update-sub-order-status-paid-to-processing
+### [1] PAID -> PROCESSING (happy path)
+PATCH {{subOrderBase}}/{{subOrderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "PROCESSING",
+  "changedBy": "{{changedBy}}",
+  "reason": "Picking items"
+}
+
+###
+# @name update-sub-order-status-processing-to-shipped
+### [2] PROCESSING -> SHIPPED
+PATCH {{subOrderBase}}/{{subOrderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "SHIPPED",
+  "changedBy": "{{changedBy}}",
+  "reason": "Handed to carrier"
+}
+
+###
+# @name update-sub-order-status-no-reason
+### [3] No reason field
+PATCH {{subOrderBase}}/{{subOrderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "DELIVERED",
+  "changedBy": "{{changedBy}}"
+}
+
+###
+# @name update-sub-order-status-missing-status
+### [4] Validation - missing status (expect 400)
+PATCH {{subOrderBase}}/{{subOrderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "changedBy": "{{changedBy}}"
+}
+
+###
+# @name update-sub-order-status-missing-changedBy
+### [5] Validation - missing changedBy (expect 400)
+PATCH {{subOrderBase}}/{{subOrderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "PROCESSING",
+  "reason": "who?"
+}
+
+###
+# @name update-sub-order-status-invalid-enum
+### [6] Validation - invalid status string (expect 400)
+PATCH {{subOrderBase}}/{{subOrderId}}/status
+Content-Type: {{contentType}}
+
+{
+  "status": "FOO",
+  "changedBy": "{{changedBy}}"
+}

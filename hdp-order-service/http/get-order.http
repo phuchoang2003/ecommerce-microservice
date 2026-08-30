@@ -1,0 +1,21 @@
+### ---------------------------------------------------------------
+### GET /v1/orders/{id} — Get order by ID
+### OrderController.getOrder
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name get-order-ok
+### [1] Happy path (expect 200)
+GET {{orderBase}}/{{orderId}}
+
+###
+# @name get-order-not-found
+### [2] Non-existent UUID (expect 404)
+GET {{orderBase}}/{{randomUuid}}
+
+###
+# @name get-order-malformed-id
+### [3] Malformed UUID (expect 400)
+GET {{orderBase}}/not-a-uuid

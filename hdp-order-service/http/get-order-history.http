@@ -1,0 +1,16 @@
+### ---------------------------------------------------------------
+### GET /v1/orders/{id}/history — Order status history
+### OrderController.getOrderHistory
+### ---------------------------------------------------------------
+
+@orderBase = {{host}}/v1/orders
+
+###
+# @name get-order-history-ok
+### [1] Happy path (expect 200, possibly empty list for a new order)
+GET {{orderBase}}/{{orderId}}/history
+
+###
+# @name get-order-history-not-found
+### [2] Non-existent UUID (expect 404)
+GET {{orderBase}}/{{randomUuid}}/history
