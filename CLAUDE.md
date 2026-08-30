@@ -7,7 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # 1. Publish common libraries to mavenLocal (required before building services)
 ./gradlew :hdp-common:publishToMavenLocal
-./gradlew :hdp-common-test:publishToMavenLocal
 
 # 2. Start infrastructure (PostgreSQL, Kafka, Schema Registry)
 docker compose up -d
@@ -41,12 +40,11 @@ docker compose up -d
 
 ### Module Structure
 
-- **hdp-common-core** — Domain layer: `AggregateRoot`, `DomainEvent` base classes
-- **hdp-common-web** — Web infrastructure: controllers, DTOs, filters, CORS, swagger
-- **hdp-common-infrastructure** — Thread pools, schedulers, request context propagation
-- **hdp-common-persistence** — JPA entities, repositories, Flyway migrations, UUIDv7 ID generator
-- **hdp-common-messaging** — Kafka producers/consumers with Avro support
-- **hdp-common-test** — Test utilities (`@ExpectMaxQueryCount`, `QueryCountExtension`)
+- **hdp-library** — Shared library: domain primitives + web + infrastructure + observability (controllers, DTOs, filters, CORS, swagger, thread pools, Redis, actuator)
+
+> Persistence (JPA base classes, repos, SQL utilities, datasource proxy, domain event publisher) is inlined per service — see `com.hdp.common.persistence.*` in order/product services.
+> Kafka + Avro messaging (config, publishers, dispatchers, validators) is inlined into order and product services — see `com.hdp.common.messaging.*` and `src/main/avro/*.avsc`.
+> File storage (S3) is inlined into product-service.
 
 - **hdp-order-service** — Order management microservice
 - **hdp-product-service** — Product management microservice
@@ -101,6 +99,6 @@ Rule.of(value, "field", result)
 
 ## Gotchas
 
-- **Publish common libs first** — Always run `./gradlew :hdp-common:publishToMavenLocal :hdp-common-test:publishToMavenLocal` before building services
+- **Publish common libs first** — Always run `./gradlew :hdp-common:publishToMavenLocal` before building services
 - **KRaft mode ports** — Kafka uses ports 29092 (internal) and 9092 (external); docker-compose maps 9092→localhost
 - **Non-standard DB ports** — Order service connects to 5433, product service to 5434 (not the default 5432)

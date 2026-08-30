@@ -1,0 +1,21 @@
+{
+  "type": "record",
+  "name": "ProductDeletedIntegrationEvent",
+  "namespace": "com.hdp.messaging.event.product",
+  "fields": [
+    {"name": "eventId", "type": "string"},
+    {"name": "eventType", "type": "string"},
+    {"name": "version", "type": "int"},
+    {"name": "source", "type": "string"},
+    {"name": "correlationId", "type": ["null", "string"], "default": null},
+    {"name": "occurredAt", "type": "long", "logicalType": "timestamp-millis"},
+    {"name": "data", "type": {
+      "type": "record",
+      "name": "ProductDeletedEventData",
+      "fields": [
+        {"name": "productId", "type": "string"},
+        {"name": "sellerId", "type": "string"}
+      ]
+    }}
+  ]
+}

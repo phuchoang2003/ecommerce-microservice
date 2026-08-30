@@ -78,15 +78,10 @@ This platform serves as a **reference implementation** and **learning resource**
 
 ```
 ecommerce-microservice/
-├── hdp-common-core/          # Domain layer: AggregateRoot, DomainEvent, Usecase
-├── hdp-common-web/           # Web infrastructure: controllers, filters, CORS, Swagger
-├── hdp-common-infrastructure/ # Thread pools, schedulers, request context propagation
-├── hdp-common-persistence/    # JPA entities, repositories, Flyway migrations
-├── hdp-common-messaging/      # Kafka producers/consumers with Avro schema support
-├── hdp-common-test/           # Test utilities (@ExpectMaxQueryCount)
+├── hdp-library/              # Shared library: domain primitives + web + infrastructure + observability
 │
-├── hdp-order-service/         # Order management microservice
-├── hdp-product-service/       # Product management microservice
+├── hdp-order-service/         # Order management microservice (owns its persistence + Kafka/Avro inline)
+├── hdp-product-service/       # Product management microservice (owns its persistence + filestorage + Kafka/Avro inline)
 └── hdp-notification-service/  # Kafka consumer → notification sender
 ```
 
@@ -151,7 +146,6 @@ docker compose up -d
 
 ```bash
 ./gradlew :hdp-common:publishToMavenLocal
-./gradlew :hdp-common-test:publishToMavenLocal
 ```
 
 ### 3. Build & Run

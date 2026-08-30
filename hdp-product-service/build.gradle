@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.github.davidmc24.gradle.plugin.avro' version '1.9.1'
 }
 
 group = 'com.hdp'
@@ -46,19 +47,24 @@ configurations.all {
 
 dependencies {
     // HDP Common libraries
-    implementation project(':hdp-common-core')
-    implementation project(':hdp-common-web')
-    implementation project(':hdp-common-infrastructure')
-    implementation project(':hdp-common-persistence')
-    implementation project(':hdp-common-messaging')
-    implementation project(':hdp-common-file-storage')
-    implementation project(':hdp-common-test')
+    implementation project(':hdp-library')
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:2.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Inlined from hdp-common-messaging (formerly common) — Kafka + Avro
+    implementation 'org.springframework.kafka:spring-kafka'
+    // Confluent Avro serializer pulls swagger-annotations:2.1.10 which conflicts
+    // with swagger-annotations-jakarta:2.2.27 from springdoc on Boot 4.x
+    // (NoSuchMethodError on requiredMode at /v3/api-docs). Drop the legacy one.
+    implementation("io.confluent:kafka-avro-serializer:${confluentVersion}") {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-annotations'
+    }
+    implementation "org.apache.avro:avro:${avroVersion}"
 
     // Flyway for database migration
     implementation 'org.flywaydb:flyway-core'
@@ -67,9 +73,17 @@ dependencies {
     // PostgreSQL JDBC driver
     runtimeOnly 'org.postgresql:postgresql'
 
+    // AWS SDK for S3 file storage (inlined from hdp-common-file-storage)
+    implementation 'software.amazon.awssdk:s3:2.44.7'
+    implementation 'software.amazon.awssdk:sts:2.44.7'
+
     // Lombok for convenience in test helpers
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Test scope
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {

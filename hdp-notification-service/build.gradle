@@ -44,9 +44,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation project(':hdp-common-core')
-    implementation project(':hdp-common-web')
-    implementation project(':hdp-common-infrastructure')
+    implementation project(':hdp-library')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.kafka:spring-kafka'
     compileOnly 'org.projectlombok:lombok'

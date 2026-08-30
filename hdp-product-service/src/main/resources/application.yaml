@@ -46,6 +46,9 @@ logging:
     org.springframework.web.cors: DEBUG
     org.springframework.web.filter: DEBUG
 app:
+  info:
+    service-name: ${spring.application.name}
+    environment: ${ENVIRONMENT:development}
   logging:
     request:
       enabled: true

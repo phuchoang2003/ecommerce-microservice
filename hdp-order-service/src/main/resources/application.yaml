@@ -15,15 +15,15 @@ server:
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
     min-response-size: ${GZIP_MIN_RESPONSE_SIZE:1024} # 1KB
 spring:
+  application:
+    name: order-service
   config:
     import:
       - classpath:application-flyway.yaml
       - classpath:application-datasource.yaml
       - classpath:application-jpa.yaml
       - classpath:application-swagger.yaml
-      - classpath:application-actuator.yaml 
-  application:
-    name: order-service
+      - classpath:application-actuator.yaml
   threads:
     virtual:
       enabled: true
@@ -31,6 +31,11 @@ spring:
     keep-alive: true
 
 
+
+app:
+  info:
+    service-name: ${spring.application.name}
+    environment: ${ENVIRONMENT:development}
 
 info:
   app:
@@ -43,11 +48,11 @@ info:
 
 logging:
   level:
-    com.zaxxer.hikari: DEBUG
+    com.zaxxer.hikari: INFO
     net.ttddyy.dsproxy.listener: DEBUG
-    org.springframework.web.cors: DEBUG
+    org.springframework.web.cors: INFO
     org.springframework.web.filter: DEBUG
     org.apache.kafka: OFF
     kafka: OFF
-    org.springframework.cache: TRACE
+    org.springframework.cache: DEBUG
     root: warn

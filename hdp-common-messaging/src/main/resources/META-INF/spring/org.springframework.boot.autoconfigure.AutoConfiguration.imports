@@ -1,4 +1,0 @@
-com.hdp.common.messaging.config.KafkaMessagingConfig
-com.hdp.common.messaging.dispatcher.HandlerRegistry
-com.hdp.common.messaging.publisher.AvroOutboundEventPublisher
-com.hdp.common.messaging.dispatcher.AvroEventDispatcher

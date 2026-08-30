@@ -18,14 +18,7 @@ dependencyResolutionManagement {
 
 rootProject.name = 'ecommerce-microservice'
 
-include 'hdp-common-core'
-include 'hdp-common-web'
-include 'hdp-common-infrastructure'
-include 'hdp-common-persistence'
-include 'hdp-common-test'
-include 'hdp-common-messaging'
-include 'hdp-common-observability'
-include 'hdp-common-file-storage'
+include 'hdp-library'
 include 'hdp-product-service'
 include 'hdp-notification-service'
 include 'hdp-order-service'
