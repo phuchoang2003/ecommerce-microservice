@@ -1,5 +1,0 @@
-com.hdp.common.web.filter.HttpRequestResponseLoggingFilter
-com.hdp.common.web.filter.RequestLoggingAutoConfiguration
-com.hdp.common.web.i18n.MessageSourceAutoConfiguration
-com.hdp.common.web.exception.GlobalExceptionHandler
-com.hdp.common.web.swagger.SwaggerAutoConfiguration

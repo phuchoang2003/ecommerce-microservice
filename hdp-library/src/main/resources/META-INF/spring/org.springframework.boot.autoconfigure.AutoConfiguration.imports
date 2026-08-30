@@ -1,0 +1,12 @@
+com.hdp.common.web.filter.TraceIdFilter
+com.hdp.common.web.filter.HttpRequestResponseLoggingFilter
+com.hdp.common.web.filter.RequestLoggingAutoConfiguration
+com.hdp.common.web.i18n.MessageSourceAutoConfiguration
+com.hdp.common.web.exception.GlobalExceptionHandler
+com.hdp.common.web.swagger.SwaggerAutoConfiguration
+com.hdp.common.infrastructure.executor.TaskExecutorAutoConfiguration
+com.hdp.common.infrastructure.schedule.SchedulerAutoConfiguration
+com.hdp.common.infrastructure.serialization.JacksonAutoConfiguration
+com.hdp.common.infrastructure.clock.ClockConfig
+com.hdp.common.infrastructure.info.ApplicationInfoAutoConfiguration
+com.hdp.observability.config.CommonTagsConfig
