@@ -1,0 +1,29 @@
+## Stage 1: Build the application
+FROM eclipse-temurin:25-jdk AS build
+
+WORKDIR /app
+COPY . .
+
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
+
+RUN ./gradlew :hdp-config-server:bootJar -x test
+
+## Stage 2: Package the application
+FROM eclipse-temurin:25-jre
+
+WORKDIR /app
+COPY --from=build /app/hdp-config-server/build/libs/hdp-config-server-0.0.1-SNAPSHOT.jar config-server.jar
+
+# Khai báo các env var cần thiết — runtime supply qua docker-compose / K8s / GitHub Actions
+ENV JAVA_OPTS=""
+ENV CONFIG_REPO_URI="https://github.com/phuchoang2003/ecommerce-config-repo"
+ENV CONFIG_REPO_USERNAME="phuchoang2003"
+ENV CONFIG_REPO_TOKEN=""
+ENV CONFIG_REPO_DEFAULT_LABEL="main"
+
+EXPOSE 8888
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD wget --spider --quiet http://localhost:8888/actuator/health/liveness || exit 1
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar config-server.jar"]

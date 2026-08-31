@@ -1,7 +1,0 @@
-spring:
-  kafka:
-    bootstrap-servers: localhost:9092 # ket noi vao mot broker, gui request lay metadata cua cluster
-    producer:
-      properties:
-        allow.auto.create.topics: true
-

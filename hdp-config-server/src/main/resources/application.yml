@@ -1,0 +1,58 @@
+server:
+  port: 8888
+  shutdown: graceful
+
+spring:
+  application:
+    name: hdp-config-server
+  profiles:
+    active: git
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: ${CONFIG_REPO_URI:https://github.com/phuchoang2003/ecommerce-config-repo}
+          username: ${CONFIG_REPO_USERNAME:phuchoang2003}
+          password: ${CONFIG_REPO_TOKEN:}
+          default-label: ${CONFIG_REPO_DEFAULT_LABEL:main}
+          search-paths:
+            - shared
+            - libs
+            - "services/{application}"
+            - "services/{application}/{profile}"
+          clone-on-start: true
+          force-pull: true
+          refresh-rate: 30
+          timeout: 10
+
+        # Health indicator để nginx / K8s kiểm tra liveness
+        health:
+          repositories:
+            ecommerce-config:
+              name: ecommerce-config-repo
+              label: ${CONFIG_REPO_DEFAULT_LABEL:main}
+              uri: ${CONFIG_REPO_URI:https://github.com/phuchoang2003/ecommerce-config-repo}
+
+# Actuator — expose endpoints cho monitoring / health check
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,refresh,bus-refresh
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+info:
+  app:
+    name: hdp-config-server
+    role: infrastructure
+    description: Centralized config for HDP microservice platform

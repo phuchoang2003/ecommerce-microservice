@@ -19,6 +19,7 @@ dependencyResolutionManagement {
 rootProject.name = 'ecommerce-microservice'
 
 include 'hdp-library'
+include 'hdp-config-server'
 include 'hdp-product-service'
 include 'hdp-notification-service'
 include 'hdp-order-service'
