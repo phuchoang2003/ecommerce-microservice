@@ -1,0 +1,24 @@
+## =============================================================================
+## Bootstrap config — kept locally in src/main/resources so the app can boot
+## without depending on Config Server. The full service config lives at
+## github.com/your-org/ecommerce-config-repo → hdp-order-service.yml
+##
+## `spring.application.name` MUST match the file prefix in config-repo
+## (so the server knows which file to fetch). The block below is the only
+## thing every environment relies on being present locally.
+## =============================================================================
+
+spring:
+  application:
+    name: hdp-order-service
+
+  ## Where to find config-server. Overridable via SPRING_CONFIG_IMPORT env.
+  ## Default is localhost (local dev with `docker compose up config-server`).
+  ## Inside docker-compose network: http://config-server:8888
+  config:
+    import: ${SPRING_CONFIG_IMPORT:configserver:http://localhost:8888}
+
+  ## Active profile — drives which {service}-{profile}.yml gets loaded.
+  ## Overridable via SPRING_PROFILES_ACTIVE env (CI/CD sets this).
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:default}

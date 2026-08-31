@@ -57,6 +57,7 @@ configurations {
 dependencyManagement {
     imports {
         mavenBom 'org.springframework.boot:spring-boot-dependencies:4.0.5'
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2025.1.3'
     }
 }
 
@@ -75,6 +76,9 @@ configurations.all {
 dependencies {
     // HDP Common libraries
     implementation project(':hdp-library')
+
+    // Spring Cloud Config client — pulls config from hdp-config-server on startup
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'

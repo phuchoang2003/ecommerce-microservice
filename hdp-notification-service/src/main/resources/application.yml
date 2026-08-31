@@ -1,0 +1,12 @@
+## Bootstrap config for hdp-notification-service. Full config in
+## github.com/your-org/ecommerce-config-repo → hdp-notification-service.yml
+
+spring:
+  application:
+    name: hdp-notification-service
+
+  config:
+    import: ${SPRING_CONFIG_IMPORT:configserver:http://localhost:8888}
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:default}
