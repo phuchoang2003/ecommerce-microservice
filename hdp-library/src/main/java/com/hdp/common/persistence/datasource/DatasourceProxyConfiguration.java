@@ -28,6 +28,8 @@ public class DatasourceProxyConfiguration {
                 return ProxyDataSourceBuilder
                         .create(ds)
                         .name("DS-PROXY")
+                        .countQuery()
+                        .multiline()
                         .listener(loggingListener)
                         .build();
             }
