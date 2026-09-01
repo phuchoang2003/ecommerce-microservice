@@ -1,7 +1,5 @@
 package com.hdp.common.filestorage.service;
 
-import com.hdp.product_service.filestorage.command.GeneratePresignedUrlCommand;
-import com.hdp.product_service.filestorage.result.GeneratePresignedUrlResult;
 import com.hdp.product_service.filestorage.properties.AwsProperties;
 import com.hdp.product_service.filestorage.service.FileStorageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;

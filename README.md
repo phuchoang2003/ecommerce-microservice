@@ -91,18 +91,23 @@ ecommerce-microservice/
 
 ### Clean Architecture Layers
 ```
-application/port/in/     ← Usecase interfaces (DTO @Valid handles null/length; domain invariants live in value objects)
-application/port/out/    ← Persistence port interfaces
-application/event/       ← Domain event handlers
-domain/model/             ← Aggregate roots
+application/port/in/<feature>/  ← Contracts: Command/Query + Result + Handler interface
+application/port/out/           ← Persistence port interfaces
+application/handler/<feature>/  ← Handler implementations
+application/eventhandler/       ← Domain event handlers
+domain/model/                   ← Aggregate roots
 infrastructure/adapter/inbound/web/    ← Controllers, DTOs, filters
 infrastructure/adapter/outbound/       ← Repository implementations, event publishers
 ```
 
-### Usecase Pattern
+### Command/Query Pattern
 ```java
-public interface Usecase<I, O> {
-    O execute(I input);
+public interface CommandHandler<C, R> {
+    R handle(C command);
+}
+
+public interface QueryHandler<Q, V> {
+    V handle(Q query);
 }
 ```
 

@@ -30,7 +30,7 @@ docker compose up -d
 ./gradlew :hdp-product-service:test
 
 # Run a specific test class
-./gradlew :hdp-order-service:test --tests "com.hdp.order_service.application.Usecase.CreateOrderUsecaseImplTest"
+./gradlew :hdp-order-service:test --tests "com.hdp.order_service.application.eventhandler.ProductCreatedIntegrationEventHandlerTest"
 
 # Clean build
 ./gradlew clean build
@@ -53,26 +53,46 @@ docker compose up -d
 ### Clean Architecture Layers (per module)
 
 ```
-application/port/in/          ← Usecase interfaces, validation (Rule, ValidationResult)
-application/port/out/         ← Persistence port interfaces
-application/event/            ← Domain event handlers
-domain/model/                 ← Aggregate roots
+application/port/in/<feature>/  ← Contracts: Command/Query + Result + Handler interface
+application/port/out/           ← Persistence port interfaces
+application/handler/<feature>/  ← Handler implementations
+application/eventhandler/       ← Domain event handlers
+domain/model/                   ← Aggregate roots
 infrastructure/adapter/inbound/web/   ← Controllers, DTOs, filters
 infrastructure/adapter/outbound/      ← Repository implementations, event publishers
 ```
 
+Per-feature split example (e.g. `createorder`):
+```
+application/port/in/createorder/
+  CreateOrderCommand.java
+  CreateOrderResult.java
+  CreateOrderCommandHandler.java
+application/handler/createorder/
+  CreateOrderCommandHandlerImpl.java
+```
+
 ### Key Patterns
 
-**Usecase Pattern** — All business logic goes through `Usecase<I, O>` interface:
+**Command/Query Pattern** — All business logic goes through `CommandHandler<C, R>` or `QueryHandler<Q, V>`:
 ```java
-public interface Usecase<I, O> {
-    O execute(I input);
+public interface CommandHandler<C, R> {
+    R handle(C command);
+}
+
+public interface QueryHandler<Q, V> {
+    V handle(Q query);
 }
 ```
 
+- Commands mutate state, return a Result describing the outcome.
+- Queries are read-only, return a View (read-only projection).
+- Each handler interface lives in its feature package; each Command/Query/View is a top-level record (not nested in the handler interface).
+- Multiple handlers returning the same shape keep separate View types — handler is the unit of reuse, not View.
+
 **Validation** — Two layers, each with its own concern:
 
-- **DTO layer** — jakarta.validation annotations (`@NotNull`, `@Size`, `@Min`, `@Pattern`...) on request DTOs, enforced by `@Valid` at the controller. Fails fast with 400 before reaching the usecase. Use for null/length/range/regex.
+- **DTO layer** — jakarta.validation annotations (`@NotNull`, `@Size`, `@Min`, `@Pattern`...) on request DTOs, enforced by `@Valid` at the controller. Fails fast with 400 before reaching the handler. Use for null/length/range/regex.
 
 - **Domain layer** — business rules live in aggregates/value objects, enforced via constructor/factory. Throw domain exception when invariant breaks. Use `Validator.of(...).ruleFor(...).throwIfInvalid()` (C# FluentValidation-style API in `com.hdp.core.validation`) when the rule spans multiple fields or needs DB lookup. For trivial single-condition checks, plain `if (bad) throw ...` is fine.
 

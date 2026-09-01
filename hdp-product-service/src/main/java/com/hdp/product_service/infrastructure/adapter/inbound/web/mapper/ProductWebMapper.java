@@ -1,8 +1,13 @@
 package com.hdp.product_service.infrastructure.adapter.inbound.web.mapper;
 
-import com.hdp.product_service.application.port.in.CreateProductUsecase;
-import com.hdp.product_service.application.port.in.UpdateProductStatusUsecase;
-import com.hdp.product_service.application.port.in.UpdateProductUsecase;
+import com.hdp.product_service.application.port.in.createproduct.CreateProductCommand;
+import com.hdp.product_service.application.port.in.createproduct.CreateProductResult;
+import com.hdp.product_service.application.port.in.getproduct.GetProductResult;
+import com.hdp.product_service.application.port.in.listproducts.ProductSummary;
+import com.hdp.product_service.application.port.in.updateproduct.UpdateProductCommand;
+import com.hdp.product_service.application.port.in.updateproduct.UpdateProductResult;
+import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusCommand;
+import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusResult;
 import com.hdp.product_service.domain.model.valueobject.ProductStatus;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request.CreateProductRequest;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request.UpdateProductRequest;
@@ -18,8 +23,8 @@ import java.util.UUID;
 @Component
 public class ProductWebMapper {
 
-    public CreateProductUsecase.Command toCreateCommand(CreateProductRequest request) {
-        return new CreateProductUsecase.Command(
+    public CreateProductCommand toCreateCommand(CreateProductRequest request) {
+        return new CreateProductCommand(
             UUID.fromString(request.sellerId()),
             UUID.fromString(request.categoryId()),
             request.name(),
@@ -31,8 +36,8 @@ public class ProductWebMapper {
         );
     }
 
-    public UpdateProductUsecase.Command toUpdateCommand(String id, UpdateProductRequest request) {
-        return new UpdateProductUsecase.Command(
+    public UpdateProductCommand toUpdateCommand(String id, UpdateProductRequest request) {
+        return new UpdateProductCommand(
             UUID.fromString(id),
             UUID.fromString(request.sellerId()),
             request.categoryId() != null ? UUID.fromString(request.categoryId()) : null,
@@ -45,15 +50,15 @@ public class ProductWebMapper {
         );
     }
 
-    public UpdateProductStatusUsecase.Command toUpdateStatusCommand(String id, UpdateProductStatusRequest request) {
-        return new UpdateProductStatusUsecase.Command(
+    public UpdateProductStatusCommand toUpdateStatusCommand(String id, UpdateProductStatusRequest request) {
+        return new UpdateProductStatusCommand(
             UUID.fromString(id),
             UUID.fromString(request.sellerId()),
             request.newStatus()
         );
     }
 
-    public ProductResponse toResponse(CreateProductUsecase.Result result) {
+    public ProductResponse toResponse(CreateProductResult result) {
         return new ProductResponse(
             result.id().toString(),
             result.sellerId().toString(),
@@ -71,17 +76,71 @@ public class ProductWebMapper {
         );
     }
 
-    public ProductSummaryResponse toSummaryResponse(CreateProductUsecase.Result result) {
-        return new ProductSummaryResponse(
+    public ProductResponse toResponse(GetProductResult result) {
+        return new ProductResponse(
             result.id().toString(),
             result.sellerId().toString(),
             result.categoryId().toString(),
             result.name(),
+            result.description(),
             result.price(),
+            result.originalPrice(),
             result.images(),
             result.rating(),
             result.soldCount(),
-            result.status().name()
+            result.status().name(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    public ProductResponse toResponse(UpdateProductResult result) {
+        return new ProductResponse(
+            result.id().toString(),
+            result.sellerId().toString(),
+            result.categoryId().toString(),
+            result.name(),
+            result.description(),
+            result.price(),
+            result.originalPrice(),
+            result.images(),
+            result.rating(),
+            result.soldCount(),
+            result.status().name(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    public ProductResponse toResponse(UpdateProductStatusResult result) {
+        return new ProductResponse(
+            result.id().toString(),
+            result.sellerId().toString(),
+            result.categoryId().toString(),
+            result.name(),
+            result.description(),
+            result.price(),
+            result.originalPrice(),
+            result.images(),
+            result.rating(),
+            result.soldCount(),
+            result.status().name(),
+            result.createdAt(),
+            result.updatedAt()
+        );
+    }
+
+    public ProductSummaryResponse toSummaryResponse(ProductSummary summary) {
+        return new ProductSummaryResponse(
+            summary.id().toString(),
+            summary.sellerId().toString(),
+            summary.categoryId().toString(),
+            summary.name(),
+            summary.price(),
+            summary.images(),
+            summary.rating(),
+            summary.soldCount(),
+            summary.status().name()
         );
     }
 }

@@ -1,12 +1,11 @@
 package com.hdp.product_service.filestorage.service;
 
+import com.hdp.product_service.application.port.in.generatepresignedurl.GeneratePresignedUrlCommand;
 import com.hdp.product_service.filestorage.FileStorageService;
 import com.hdp.product_service.filestorage.command.DeleteFilesCommand;
 import com.hdp.product_service.filestorage.command.DownloadFileCommand;
-import com.hdp.product_service.filestorage.command.GeneratePresignedUrlCommand;
 import com.hdp.product_service.filestorage.result.DeleteFilesResult;
 import com.hdp.product_service.filestorage.result.DownloadFileResult;
-import com.hdp.product_service.filestorage.result.GeneratePresignedUrlResult;
 import com.hdp.product_service.filestorage.properties.AwsProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
