@@ -47,7 +47,7 @@ public class CancelOrderCommandHandlerImpl implements CancelOrderCommandHandler 
 
     private CancelOrderResult toResult(Order entity) {
         return new CancelOrderResult(
-            entity.getId(), entity.getOrderNumber(), entity.getBuyerId(), entity.getShippingAddressId(),
+            entity.getId().value(), entity.getOrderNumber().value(), entity.getBuyerId(), entity.getShippingAddressId(),
             entity.getPaymentMethod(), entity.getStatus(),
             entity.getSubtotal(), entity.getShippingFee(), entity.getDiscount(), entity.getTax(),
             entity.getTotalAmount(), entity.getPaymentIntentId(),

@@ -1,6 +1,6 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request;
 
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
+import com.hdp.order_service.domain.valueobject.PaymentMethod;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

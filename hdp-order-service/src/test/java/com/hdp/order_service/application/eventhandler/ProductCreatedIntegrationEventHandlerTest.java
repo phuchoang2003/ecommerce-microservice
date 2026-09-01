@@ -4,7 +4,7 @@ import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.messaging.event.product.ProductCreatedEventData;
 import com.hdp.messaging.event.product.ProductCreatedIntegrationEvent;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
-import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
+import com.hdp.order_service.domain.valueobject.ProductSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

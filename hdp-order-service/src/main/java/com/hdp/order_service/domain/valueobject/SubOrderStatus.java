@@ -1,4 +1,4 @@
-package com.hdp.order_service.domain.model.valueobject;
+package com.hdp.order_service.domain.valueobject;
 
 import java.util.EnumSet;
 import java.util.Map;

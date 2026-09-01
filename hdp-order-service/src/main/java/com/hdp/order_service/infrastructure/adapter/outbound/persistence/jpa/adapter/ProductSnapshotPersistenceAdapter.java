@@ -3,7 +3,7 @@ package com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.ad
 import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.core.exception.NotFoundException;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
-import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
+import com.hdp.order_service.domain.valueobject.ProductSnapshot;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.ProductSnapshotJpa;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.repository.ProductSnapshotRepositoryJpa;
 import lombok.RequiredArgsConstructor;

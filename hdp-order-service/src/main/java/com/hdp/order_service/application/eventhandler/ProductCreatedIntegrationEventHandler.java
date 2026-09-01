@@ -3,7 +3,7 @@ package com.hdp.order_service.application.eventhandler;
 import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.messaging.event.product.ProductCreatedIntegrationEvent;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
-import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
+import com.hdp.order_service.domain.valueobject.ProductSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;

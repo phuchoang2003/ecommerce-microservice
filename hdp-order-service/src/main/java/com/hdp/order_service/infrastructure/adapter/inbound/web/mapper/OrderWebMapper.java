@@ -24,6 +24,8 @@ import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.response.Ord
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.response.SubOrderResponse;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.response.SubOrderSummaryResponse;
 
+import java.util.UUID;
+
 /**
  * Mapper for OrderController - converts between web DTOs and command/query handlers.
  */

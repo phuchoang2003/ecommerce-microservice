@@ -1,6 +1,6 @@
 package com.hdp.order_service.application.port.in.listsubordersbyorder;
 
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 
 import java.time.Instant;
 import java.util.UUID;

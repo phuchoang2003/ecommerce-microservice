@@ -25,7 +25,7 @@ public class ListOrdersQueryHandlerImpl implements ListOrdersQueryHandler {
 
     private OrderSummary toSummary(Order e) {
         return new OrderSummary(
-            e.getId(), e.getOrderNumber(), e.getBuyerId(),
+            e.getId().value(), e.getOrderNumber().value(), e.getBuyerId(),
             e.getPaymentMethod(), e.getStatus(), e.getTotalAmount(), e.getCreatedAt()
         );
     }

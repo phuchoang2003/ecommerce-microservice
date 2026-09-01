@@ -1,6 +1,6 @@
 package com.hdp.order_service.application.port.in.createorder;
 
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
+import com.hdp.order_service.domain.valueobject.PaymentMethod;
 
 import java.util.List;
 import java.util.UUID;

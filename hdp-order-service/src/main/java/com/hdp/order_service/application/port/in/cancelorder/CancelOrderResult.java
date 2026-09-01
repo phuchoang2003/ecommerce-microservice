@@ -1,8 +1,8 @@
 package com.hdp.order_service.application.port.in.cancelorder;
 
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.PaymentMethod;
+import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

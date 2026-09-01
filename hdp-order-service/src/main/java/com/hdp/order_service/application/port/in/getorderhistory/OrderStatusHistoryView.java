@@ -1,6 +1,6 @@
 package com.hdp.order_service.application.port.in.getorderhistory;
 
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
 
 import java.time.Instant;
 import java.util.UUID;

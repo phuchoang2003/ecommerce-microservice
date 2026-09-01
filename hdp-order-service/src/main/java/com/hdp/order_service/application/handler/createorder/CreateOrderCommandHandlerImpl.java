@@ -13,9 +13,10 @@ import com.hdp.order_service.domain.model.Order;
 import com.hdp.order_service.domain.model.OrderItem;
 import com.hdp.order_service.domain.model.OrderStatusHistory;
 import com.hdp.order_service.domain.model.SubOrder;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderNumber;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.ProductSnapshot;
+import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -36,18 +37,22 @@ public class CreateOrderCommandHandlerImpl implements CreateOrderCommandHandler 
     private final OrderPersistencePort orderPersistence;
     private final DomainEventPublisher eventPublisher;
     private final ProductionSnapshotPersistencePort productionSnapshotPersistence;
+    private final OrderValidationStep orderValidation;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CreateOrderResult handle(CreateOrderCommand command) {
         Map<UUID, ProductSnapshot> snapshotMap = validateProducts(command.items());
+        orderValidation.validate(command);
 
         BigDecimal subtotal = command.items().stream()
             .map(item -> snapshotMap.get(item.productId()).price().multiply(BigDecimal.valueOf(item.quantity())))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        OrderNumber orderNumber = new OrderNumber(UUID.randomUUID().toString().substring(0, 14));
+
         Order order = Order.builder()
-            .orderNumber(generateOrderNumber())
+            .orderNumber(orderNumber)
             .buyerId(command.buyerId())
             .shippingAddressId(command.shippingAddressId())
             .paymentMethod(command.paymentMethod())
@@ -141,11 +146,6 @@ public class CreateOrderCommandHandlerImpl implements CreateOrderCommandHandler 
         log.info("Published OrderCreatedDomainEvent: orderId={}", order.getId());
     }
 
-    private String generateOrderNumber() {
-        return "ORD-" + System.currentTimeMillis() + "-"
-            + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
     private Map<UUID, ProductSnapshot> validateProducts(List<CreateOrderCommand.CreateOrderItemCommand> items) {
         List<UUID> productIds = items.stream()
             .map(CreateOrderCommand.CreateOrderItemCommand::productId)
@@ -165,7 +165,7 @@ public class CreateOrderCommandHandlerImpl implements CreateOrderCommandHandler 
 
     private CreateOrderResult toResult(Order entity) {
         return new CreateOrderResult(
-            entity.getId(), entity.getOrderNumber(), entity.getBuyerId(), entity.getShippingAddressId(),
+            entity.getId().value(), entity.getOrderNumber().value(), entity.getBuyerId(), entity.getShippingAddressId(),
             entity.getPaymentMethod(), entity.getStatus(),
             entity.getSubtotal(), entity.getShippingFee(), entity.getDiscount(), entity.getTax(),
             entity.getTotalAmount(), entity.getPaymentIntentId(),

@@ -6,7 +6,7 @@ import com.hdp.order_service.domain.model.Order;
 import com.hdp.order_service.domain.model.OrderItem;
 import com.hdp.order_service.domain.model.OrderStatusHistory;
 import com.hdp.order_service.domain.model.SubOrder;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.AppliedCouponJpa;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderItemJpa;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderJpa;
@@ -40,7 +40,7 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
 
     private OrderJpa buildOrderJpa(Order order) {
         OrderJpa jpa = OrderJpa.builder()
-                .orderNumber(order.getOrderNumber())
+                .orderNumber(order.getOrderNumber().value())
                 .buyerId(order.getBuyerId())
                 .shippingAddressId(order.getShippingAddressId())
                 .paymentMethod(order.getPaymentMethod())
@@ -62,7 +62,7 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
                 .build();
 
         if (order.getId() != null) {
-            jpa.setId(order.getId());
+            jpa.setId(order.getId().value());
         }
 
         for (SubOrder subOrder : order.getSubOrders()) {

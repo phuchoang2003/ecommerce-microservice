@@ -1,7 +1,7 @@
 package com.hdp.order_service.application.port.out;
 
 import com.hdp.order_service.domain.model.Order;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request;
 
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

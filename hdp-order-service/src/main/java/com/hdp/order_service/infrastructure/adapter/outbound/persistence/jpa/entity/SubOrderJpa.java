@@ -1,7 +1,7 @@
 package com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity;
 
 import com.hdp.common.persistence.entity.BaseEntityJpa;
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

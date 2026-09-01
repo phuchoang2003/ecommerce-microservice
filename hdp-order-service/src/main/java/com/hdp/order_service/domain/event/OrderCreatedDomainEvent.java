@@ -1,6 +1,8 @@
 package com.hdp.order_service.domain.event;
 
 import com.hdp.core.event.DomainEvent;
+import com.hdp.order_service.domain.valueobject.OrderId;
+import com.hdp.order_service.domain.valueobject.OrderNumber;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,8 +14,8 @@ import java.util.UUID;
 @Getter
 public class OrderCreatedDomainEvent extends DomainEvent {
 
-    private final UUID orderId;
-    private final String orderNumber;
+    private final OrderId orderId;
+    private final OrderNumber orderNumber;
     private final UUID buyerId;
     private final UUID shippingAddressId;
     private final String paymentMethod;
@@ -23,8 +25,8 @@ public class OrderCreatedDomainEvent extends DomainEvent {
 
     @Builder
     public OrderCreatedDomainEvent(
-            UUID orderId,
-            String orderNumber,
+            OrderId orderId,
+            OrderNumber orderNumber,
             UUID buyerId,
             UUID shippingAddressId,
             String paymentMethod,

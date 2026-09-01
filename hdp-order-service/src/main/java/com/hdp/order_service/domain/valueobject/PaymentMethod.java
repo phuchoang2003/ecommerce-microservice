@@ -1,4 +1,4 @@
-package com.hdp.order_service.domain.model.valueobject;
+package com.hdp.order_service.domain.valueobject;
 
 public enum PaymentMethod {
     CREDIT_CARD,

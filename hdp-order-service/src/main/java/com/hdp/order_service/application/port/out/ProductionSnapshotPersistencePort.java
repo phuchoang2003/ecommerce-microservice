@@ -1,6 +1,6 @@
 package com.hdp.order_service.application.port.out;
 
-import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
+import com.hdp.order_service.domain.valueobject.ProductSnapshot;
 
 import java.util.List;
 import java.util.Map;

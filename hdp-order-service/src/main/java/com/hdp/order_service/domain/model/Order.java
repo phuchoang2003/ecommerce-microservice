@@ -1,8 +1,10 @@
 package com.hdp.order_service.domain.model;
 
 import com.hdp.core.exception.BusinessException;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
+import com.hdp.order_service.domain.valueobject.OrderId;
+import com.hdp.order_service.domain.valueobject.OrderNumber;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.PaymentMethod;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,8 +16,8 @@ import java.util.UUID;
 
 @Getter
 public class Order {
-    private final UUID id;
-    private final String orderNumber;
+    private final OrderId id;
+    private final OrderNumber orderNumber;
     private final UUID buyerId;
     private final UUID shippingAddressId;
     private final PaymentMethod paymentMethod;
@@ -38,7 +40,7 @@ public class Order {
     private Instant updatedAt;
 
     @Builder
-    public Order(UUID id, String orderNumber, UUID buyerId, UUID shippingAddressId,
+    public Order(OrderId id, OrderNumber orderNumber, UUID buyerId, UUID shippingAddressId,
                  PaymentMethod paymentMethod, OrderStatus status,
                  BigDecimal subtotal, BigDecimal shippingFee, BigDecimal discount, BigDecimal tax,
                  BigDecimal totalAmount, String paymentIntentId,
@@ -97,11 +99,6 @@ public class Order {
         updateStatus(OrderStatus.CANCELLED, cancelledBy, reason);
     }
 
-    public void markAsPaid(String paymentIntentId) {
-        updateStatus(OrderStatus.PAID, null, "Payment received");
-        this.paymentIntentId = paymentIntentId;
-    }
-
     private void addStatusHistory(OrderStatusHistory history) {
         this.statusHistories.add(history);
     }
@@ -118,11 +115,4 @@ public class Order {
         this.appliedCoupons.add(coupon);
     }
 
-    public boolean isExpired() {
-        return expiresAt != null && Instant.now().isAfter(expiresAt);
-    }
-
-    public boolean canBeCancelled() {
-        return this.status.isCancellable();
-    }
 }
