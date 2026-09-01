@@ -70,14 +70,13 @@ public interface Usecase<I, O> {
 }
 ```
 
-**Validation** — Use `Rule<T>` fluent builder with `ValidationResult`:
-```java
-ValidationResult result = new ValidationResult();
-Rule.of(value, "field", result)
-    .notNull("field is required")
-    .greaterThan(0, "field must be positive")
-    .throwIfInvalid();
-```
+**Validation** — Two layers, each with its own concern:
+
+- **DTO layer** — jakarta.validation annotations (`@NotNull`, `@Size`, `@Min`, `@Pattern`...) on request DTOs, enforced by `@Valid` at the controller. Fails fast with 400 before reaching the usecase. Use for null/length/range/regex.
+
+- **Domain layer** — business rules live in aggregates/value objects, enforced via constructor/factory. Throw domain exception when invariant breaks. Use `Validator.of(...).ruleFor(...).throwIfInvalid()` (C# FluentValidation-style API in `com.hdp.core.validation`) when the rule spans multiple fields or needs DB lookup. For trivial single-condition checks, plain `if (bad) throw ...` is fine.
+
+`Validator` API surface: `Validator.of(input).ruleFor("field", value, r -> r.notBlank("...")).result()`. Available checks on `RuleBuilder`: `notNull`, `notBlank`, `notEmpty`, `minLength`, `maxLength`, `maxSize`, `greaterThan`, `greaterOrEqual`, `between`, `positive` (BigDecimal), `matches` (regex), `must(Predicate, message)`. `ruleForEach(field, collection, BiConsumer)` for nested per-element validation. `positive()` does NOT catch null — combine with `notNull()` when the field is required.
 
 **Domain Events** — Entities extend `AggregateRoot<ID>` and call `addDomainEvent(DomainEvent)` to collect events. Events are published via `SpringDomainEventPublisher` after the transaction commits. Handlers extend `AbstractDomainEventHandler<T>` overriding `doHandle(T event)` and optionally `beforeHandle`/`afterHandle`.
 

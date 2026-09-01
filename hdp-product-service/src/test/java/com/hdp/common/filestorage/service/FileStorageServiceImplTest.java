@@ -1,15 +1,15 @@
 package com.hdp.common.filestorage.service;
 
-import com.hdp.common.filestorage.command.GeneratePresignedUrlCommand;
-import com.hdp.common.filestorage.result.GeneratePresignedUrlResult;
-import com.hdp.common.filestorage.properties.AwsProperties;
+import com.hdp.product_service.filestorage.command.GeneratePresignedUrlCommand;
+import com.hdp.product_service.filestorage.result.GeneratePresignedUrlResult;
+import com.hdp.product_service.filestorage.properties.AwsProperties;
+import com.hdp.product_service.filestorage.service.FileStorageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;

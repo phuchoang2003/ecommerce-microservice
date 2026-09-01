@@ -1,8 +1,0 @@
-com.hdp.common.filestorage.service.FileStorageServiceImpl
-com.hdp.common.filestorage.config.AwsConfiguration
-com.hdp.common.persistence.event.DomainEventPublisherAutoConfiguration
-com.hdp.common.persistence.datasource.SqlCommentsAutoConfiguration
-com.hdp.common.messaging.config.KafkaMessagingConfig
-com.hdp.common.messaging.dispatcher.HandlerRegistry
-com.hdp.common.messaging.publisher.AvroOutboundEventPublisher
-com.hdp.common.messaging.dispatcher.AvroEventDispatcher

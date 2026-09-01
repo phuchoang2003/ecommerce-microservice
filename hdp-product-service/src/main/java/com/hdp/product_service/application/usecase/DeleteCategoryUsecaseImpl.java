@@ -21,8 +21,6 @@ public class DeleteCategoryUsecaseImpl implements DeleteCategoryUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
-
         Category category = categoryPersistence.findByIdAndNotDeleted(command.id())
             .orElseThrow(() -> new NotFoundException("Category", command.id()));
 

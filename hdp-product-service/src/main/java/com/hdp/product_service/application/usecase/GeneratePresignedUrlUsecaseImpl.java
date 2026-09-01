@@ -1,8 +1,8 @@
 package com.hdp.product_service.application.usecase;
 
-import com.hdp.common.filestorage.FileStorageService;
-import com.hdp.common.filestorage.command.GeneratePresignedUrlCommand;
-import com.hdp.common.filestorage.result.GeneratePresignedUrlResult;
+import com.hdp.product_service.filestorage.FileStorageService;
+import com.hdp.product_service.filestorage.command.GeneratePresignedUrlCommand;
+import com.hdp.product_service.filestorage.result.GeneratePresignedUrlResult;
 import com.hdp.product_service.application.port.in.GeneratePresignedUrlUsecase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +17,6 @@ public class GeneratePresignedUrlUsecaseImpl implements GeneratePresignedUrlUsec
 
     @Override
     public Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
-
         GeneratePresignedUrlCommand storageCommand = new GeneratePresignedUrlCommand(
                 command.fileName(),
                 command.contentType(),

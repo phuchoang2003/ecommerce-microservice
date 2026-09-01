@@ -41,7 +41,6 @@ public class CreateOrderUsecaseImpl implements CreateOrderUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
         Map<UUID, ProductSnapshot> snapshotMap = validateProducts(command.items());
 
         BigDecimal subtotal = command.items().stream()

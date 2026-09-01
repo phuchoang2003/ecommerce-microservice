@@ -1,8 +1,8 @@
 package com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request;
 
-import com.hdp.common.web.annotations.EnumPatternValidate;
 import com.hdp.core.constant.BaseMessageKeyConstants;
 import com.hdp.core.constant.ValidateConstants;
+import com.hdp.product_service.domain.model.valueobject.ProductStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -19,6 +19,6 @@ public record CreateProductRequest(
         @NotNull(message = BaseMessageKeyConstants.VALIDATION_NOT_NULL) @Positive(message = BaseMessageKeyConstants.VALIDATION_POSITIVE) BigDecimal price,
         @Positive(message = BaseMessageKeyConstants.VALIDATION_POSITIVE) BigDecimal originalPrice,
         @Size(max = ValidateConstants.MAX_IMAGES_COUNT, message = BaseMessageKeyConstants.VALIDATION_SIZE) List<@Size(max = ValidateConstants.MAX_IMAGE_URL_LENGTH, message = BaseMessageKeyConstants.VALIDATION_SIZE) String> images,
-        @EnumPatternValidate(enumClass = com.hdp.product_service.domain.model.valueobject.ProductStatus.class) String status
+        ProductStatus status
 ) {
 }

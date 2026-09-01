@@ -27,8 +27,6 @@ public class UpdateProductUsecaseImpl implements UpdateProductUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CreateProductUsecase.Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
-
         Product product = productPersistence.findByIdAndNotDeleted(command.id())
             .orElseThrow(() -> new NotFoundException("Product", command.id()));
 

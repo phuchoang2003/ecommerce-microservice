@@ -34,7 +34,7 @@ public class SubOrderPersistenceAdapter implements SubOrderPersistencePort {
 
     @Override
     public Optional<SubOrder> findByIdAndNotDeleted(UUID id) {
-        return repository.findByIdAndNotDeleted(id)
+        return repository.findByIdAndIsDeletedFalse(id)
                 .map(orderMapper::toSubOrderDomain);
     }
 

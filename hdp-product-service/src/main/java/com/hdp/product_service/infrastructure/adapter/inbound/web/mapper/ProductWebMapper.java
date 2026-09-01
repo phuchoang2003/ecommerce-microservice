@@ -27,7 +27,7 @@ public class ProductWebMapper {
             request.price(),
             request.originalPrice(),
             request.images(),
-            ProductStatus.valueOf(request.status())
+            request.status()
         );
     }
 
@@ -41,7 +41,7 @@ public class ProductWebMapper {
             request.price(),
             request.originalPrice(),
             request.images(),
-            request.status() != null ? ProductStatus.valueOf(request.status()) : null
+            request.status()
         );
     }
 
@@ -49,7 +49,7 @@ public class ProductWebMapper {
         return new UpdateProductStatusUsecase.Command(
             UUID.fromString(id),
             UUID.fromString(request.sellerId()),
-            ProductStatus.valueOf(request.newStatus())
+            request.newStatus()
         );
     }
 

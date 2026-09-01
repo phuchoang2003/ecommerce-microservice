@@ -14,7 +14,6 @@ import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request.Up
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.response.ProductResponse;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.response.ProductSummaryResponse;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.mapper.ProductWebMapper;
-import com.hdp.core.request.PageQuery;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -70,9 +69,8 @@ public class ProductController {
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PageQuery pageQuery = new PageQuery(page, size, List.of(), List.of());
         ListProductsUsecase.Command command = new ListProductsUsecase.Command(
-            pageQuery, sellerId, categoryId,
+            page, size, sellerId, categoryId,
             status != null ? com.hdp.product_service.domain.model.valueobject.ProductStatus.valueOf(status) : null,
             name);
         ListProductsUsecase.Result result = listProductsUsecase.execute(command);

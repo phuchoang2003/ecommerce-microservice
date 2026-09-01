@@ -20,8 +20,6 @@ public class UpdateCategoryUsecaseImpl implements UpdateCategoryUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CreateCategoryUsecase.Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
-
         Category category = categoryPersistence.findByIdAndNotDeleted(command.id())
             .orElseThrow(() -> new NotFoundException("Category", command.id()));
 

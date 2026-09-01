@@ -1,23 +1,20 @@
 package com.hdp.common.web.exception;
 
 
-import com.hdp.common.web.annotations.EnumPatternValidate;
-import com.hdp.common.web.utils.RequestContextUtils;
 import com.hdp.core.constant.DelimeterConstants;
 import com.hdp.core.constant.RequestContextConstants;
 import com.hdp.core.exception.BusinessException;
 import com.hdp.core.exception.ErrorCode;
-import com.hdp.core.exception.ValidationException;
 import com.hdp.core.util.NamingConvetionUtils;
 import jakarta.validation.ConstraintDeclarationException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -45,31 +42,13 @@ public class GlobalExceptionHandler {
         problemDetail.setType(ErrorCodeHttpMapper.toTypeUri(errorCode));
         problemDetail.setTitle(getTitle(errorCode.getMessageKey()));
         problemDetail.setInstance(getRequestUri(request));
-        problemDetail.setProperty(RequestContextConstants.TRACE_ID, RequestContextUtils.getTraceId());
+        problemDetail.setProperty(RequestContextConstants.TRACE_ID, MDC.get(RequestContextConstants.TRACE_ID));
         problemDetail.setProperty(RequestContextConstants.ERROR_CODE, errorCode.getCode());
         problemDetail.setProperty(RequestContextConstants.TIMESTAMP, Instant.now().toString());
         return problemDetail;
     }
 
 
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ProblemDetail> handleValidationException(ValidationException ex, WebRequest request) {
-        log.error("Validation exception: {}", ex.getMessage());
-
-        Locale locale = LocaleContextHolder.getLocale();
-        String message = messageSource.getMessage(ErrorCode.VALIDATION_ERROR.getMessageKey(), null, locale);
-
-        ProblemDetail problemDetail = createProblemDetail(ErrorCode.VALIDATION_ERROR, message, request);
-
-        if (ex.getDetails() != null) {
-            Map<String, Object> details = new LinkedHashMap<>(ex.getDetails());
-            details.forEach(problemDetail::setProperty);
-            problemDetail.setProperty(RequestContextConstants.ERROR_DETAIL, details);
-        }
-
-        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ErrorCode.VALIDATION_ERROR)).body(problemDetail);
-    }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex, WebRequest request) {
@@ -101,7 +80,7 @@ public class GlobalExceptionHandler {
             Object[] args = error.getArguments();
 
             // If default message is already resolved (not a value), use it directly
-            if (message != null && !message.contains(DelimeterConstants.DOT) || isEnumValidationError(error)) {
+            if (message != null && !message.contains(DelimeterConstants.DOT)) {
                 errors.put(field, message);
             } else if (message != null) {
                 // Try to resolve from message source
@@ -163,15 +142,5 @@ public class GlobalExceptionHandler {
 
     private String getTitle(String messageKey) {
         return messageSource.getMessage(messageKey + ".title", null, LocaleContextHolder.getLocale());
-    }
-
-    private boolean isEnumValidationError(FieldError error) {
-        if (error == null) return false;
-
-        String[] codes = error.getCodes();
-        if (codes == null || codes.length == 0) return false;
-
-        String baseCode = codes[codes.length - 1];
-        return EnumPatternValidate.class.getSimpleName().equals(baseCode);
     }
 }

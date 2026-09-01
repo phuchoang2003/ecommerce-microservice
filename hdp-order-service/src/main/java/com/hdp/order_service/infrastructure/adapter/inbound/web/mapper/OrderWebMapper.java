@@ -1,6 +1,5 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.mapper;
 
-import com.hdp.core.util.EnumUtils;
 import com.hdp.order_service.application.port.in.CancelOrderUsecase;
 import com.hdp.order_service.application.port.in.CreateOrderUsecase;
 import com.hdp.order_service.application.port.in.GetAppliedCouponsUsecase;
@@ -11,7 +10,6 @@ import com.hdp.order_service.application.port.in.ListOrdersUsecase;
 import com.hdp.order_service.application.port.in.ListSubOrdersByOrderUsecase;
 import com.hdp.order_service.application.port.in.UpdateOrderStatusUsecase;
 import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.CancelOrderRequest;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.CreateOrderItemRequest;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.CreateOrderRequest;
@@ -39,7 +37,7 @@ public final class OrderWebMapper {
         return new CreateOrderUsecase.Command(
             request.buyerId(),
             request.shippingAddressId(),
-            EnumUtils.fromString(PaymentMethod.class, request.paymentMethod()),
+            request.paymentMethod(),
             request.items().stream().map(OrderWebMapper::toCreateOrderItemCommand).toList(),
             request.couponCodes()
         );
@@ -62,7 +60,7 @@ public final class OrderWebMapper {
     public static UpdateOrderStatusUsecase.Command toUpdateOrderStatusCommand(UUID id, UpdateOrderStatusRequest request) {
         return new UpdateOrderStatusUsecase.Command(
             id,
-            EnumUtils.fromString(OrderStatus.class, request.status()),
+            request.status(),
             request.changedBy(),
             request.reason()
         );

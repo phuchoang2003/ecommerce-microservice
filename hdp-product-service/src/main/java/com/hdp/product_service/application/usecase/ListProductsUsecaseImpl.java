@@ -4,7 +4,6 @@ import com.hdp.product_service.application.port.in.CreateProductUsecase;
 import com.hdp.product_service.application.port.in.ListProductsUsecase;
 import com.hdp.product_service.application.port.out.ProductPersistencePort;
 import com.hdp.product_service.domain.model.Product;
-import com.hdp.core.request.PageQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,13 +25,8 @@ public class ListProductsUsecaseImpl implements ListProductsUsecase {
     @Override
     @Transactional(readOnly = true)
     public Result execute(Command command) {
-        PageQuery pq = command.pageQuery() != null ? command.pageQuery() : new PageQuery(0, 20, List.of(), List.of());
-
-        Sort sort = Sort.by(Sort.Direction.fromString(
-            pq.sorts().isEmpty() ? "DESC" : pq.sorts().get(0).direction().name()),
-            pq.sorts().isEmpty() ? "createdAt" : pq.sorts().get(0).field());
-
-        Pageable pageable = PageRequest.of(pq.page(), pq.size(), sort);
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(command.page(), command.size(), sort);
 
         Page<Product> page = productPersistence.findAll(null, pageable);
 

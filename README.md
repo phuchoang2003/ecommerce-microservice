@@ -91,7 +91,7 @@ ecommerce-microservice/
 
 ### Clean Architecture Layers
 ```
-application/port/in/     ← Usecase interfaces, validation (Rule, ValidationResult)
+application/port/in/     ← Usecase interfaces (DTO @Valid handles null/length; domain invariants live in value objects)
 application/port/out/    ← Persistence port interfaces
 application/event/       ← Domain event handlers
 domain/model/             ← Aggregate roots

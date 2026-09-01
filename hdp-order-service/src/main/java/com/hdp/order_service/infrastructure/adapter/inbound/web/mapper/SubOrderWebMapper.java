@@ -1,6 +1,5 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.mapper;
 
-import com.hdp.core.util.EnumUtils;
 import com.hdp.order_service.application.port.in.GetSubOrderItemsUsecase;
 import com.hdp.order_service.application.port.in.GetSubOrderUsecase;
 import com.hdp.order_service.application.port.in.UpdateSubOrderStatusUsecase;
@@ -31,7 +30,7 @@ public final class SubOrderWebMapper {
     public static UpdateSubOrderStatusUsecase.Command toUpdateSubOrderStatusCommand(UUID id, UpdateSubOrderStatusRequest request) {
         return new UpdateSubOrderStatusUsecase.Command(
             id,
-            EnumUtils.fromString(SubOrderStatus.class, request.status()),
+            request.status(),
             request.changedBy(),
             request.reason()
         );

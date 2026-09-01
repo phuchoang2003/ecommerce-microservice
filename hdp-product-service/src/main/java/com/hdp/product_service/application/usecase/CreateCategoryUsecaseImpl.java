@@ -18,8 +18,6 @@ public class CreateCategoryUsecaseImpl implements CreateCategoryUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
-
         String path = "";
         if (command.parentId() != null) {
             Category parent = categoryPersistence.findByIdAndNotDeleted(command.parentId())

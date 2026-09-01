@@ -26,8 +26,6 @@ public class CreateProductUsecaseImpl implements CreateProductUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result execute(Command command) {
-        command.validate(command).throwIfInvalid();
-
         // Validate category exists
         categoryPersistence.findByIdAndNotDeleted(command.categoryId())
             .orElseThrow(() -> new NotFoundException("Category", command.categoryId()));

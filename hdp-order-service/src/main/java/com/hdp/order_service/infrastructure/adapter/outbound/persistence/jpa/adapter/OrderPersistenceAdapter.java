@@ -131,7 +131,7 @@ public class OrderPersistenceAdapter implements OrderPersistencePort {
     @Override
     @Transactional(readOnly = true)
     public Optional<Order> findByIdAndNotDeleted(UUID id) {
-        return orderRepository.findByIdAndNotDeleted(id)
+        return orderRepository.findByIdAndIsDeletedFalse(id)
                 .map(orderMapper::toDomain);
     }
 
