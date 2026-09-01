@@ -1,6 +1,6 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.dto.response;
 
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderStatusHistoryJpa;
 import lombok.Builder;
 

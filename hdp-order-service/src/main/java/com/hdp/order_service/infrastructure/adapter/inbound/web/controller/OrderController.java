@@ -1,19 +1,33 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.controller;
 
 
-
 import com.hdp.common.web.dto.response.ApiResponse;
 import com.hdp.common.web.dto.response.PagedResponse;
-import com.hdp.order_service.application.port.in.CancelOrderUsecase;
-import com.hdp.order_service.application.port.in.CreateOrderUsecase;
-import com.hdp.order_service.application.port.in.GetAppliedCouponsUsecase;
-import com.hdp.order_service.application.port.in.GetOrderHistoryUsecase;
-import com.hdp.order_service.application.port.in.GetOrderItemsUsecase;
-import com.hdp.order_service.application.port.in.GetOrderUsecase;
-import com.hdp.order_service.application.port.in.ListOrdersUsecase;
-import com.hdp.order_service.application.port.in.ListSubOrdersByOrderUsecase;
-import com.hdp.order_service.application.port.in.UpdateOrderStatusUsecase;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
+import com.hdp.order_service.application.port.in.cancelorder.CancelOrderCommandHandler;
+import com.hdp.order_service.application.port.in.cancelorder.CancelOrderResult;
+import com.hdp.order_service.application.port.in.createorder.CreateOrderCommandHandler;
+import com.hdp.order_service.application.port.in.createorder.CreateOrderResult;
+import com.hdp.order_service.application.port.in.getappliedcoupons.GetAppliedCouponsQuery;
+import com.hdp.order_service.application.port.in.getappliedcoupons.GetAppliedCouponsQueryHandler;
+import com.hdp.order_service.application.port.in.getappliedcoupons.GetAppliedCouponsResult;
+import com.hdp.order_service.application.port.in.getorder.GetOrderQuery;
+import com.hdp.order_service.application.port.in.getorder.GetOrderQueryHandler;
+import com.hdp.order_service.application.port.in.getorder.GetOrderResult;
+import com.hdp.order_service.application.port.in.getorderhistory.GetOrderHistoryQuery;
+import com.hdp.order_service.application.port.in.getorderhistory.GetOrderHistoryQueryHandler;
+import com.hdp.order_service.application.port.in.getorderhistory.GetOrderHistoryResult;
+import com.hdp.order_service.application.port.in.getorderitems.GetOrderItemsQuery;
+import com.hdp.order_service.application.port.in.getorderitems.GetOrderItemsQueryHandler;
+import com.hdp.order_service.application.port.in.getorderitems.GetOrderItemsResult;
+import com.hdp.order_service.application.port.in.listorders.ListOrdersQuery;
+import com.hdp.order_service.application.port.in.listorders.ListOrdersQueryHandler;
+import com.hdp.order_service.application.port.in.listorders.ListOrdersResult;
+import com.hdp.order_service.application.port.in.listsubordersbyorder.ListSubOrdersByOrderQuery;
+import com.hdp.order_service.application.port.in.listsubordersbyorder.ListSubOrdersByOrderQueryHandler;
+import com.hdp.order_service.application.port.in.listsubordersbyorder.ListSubOrdersByOrderResult;
+import com.hdp.order_service.application.port.in.updateorderstatus.UpdateOrderStatusCommandHandler;
+import com.hdp.order_service.application.port.in.updateorderstatus.UpdateOrderStatusResult;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.CancelOrderRequest;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.CreateOrderRequest;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.UpdateOrderStatusRequest;
@@ -45,20 +59,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final CreateOrderUsecase createOrderUsecase;
-    private final GetOrderUsecase getOrderUsecase;
-    private final ListOrdersUsecase listOrdersUsecase;
-    private final UpdateOrderStatusUsecase updateOrderStatusUsecase;
-    private final CancelOrderUsecase cancelOrderUsecase;
-    private final GetOrderHistoryUsecase getOrderHistoryUsecase;
-    private final ListSubOrdersByOrderUsecase listSubOrdersByOrderUsecase;
-    private final GetOrderItemsUsecase getOrderItemsUsecase;
-    private final GetAppliedCouponsUsecase getAppliedCouponsUsecase;
+    private final CreateOrderCommandHandler createOrderCommandHandler;
+    private final GetOrderQueryHandler getOrderQueryHandler;
+    private final ListOrdersQueryHandler listOrdersQueryHandler;
+    private final UpdateOrderStatusCommandHandler updateOrderStatusCommandHandler;
+    private final CancelOrderCommandHandler cancelOrderCommandHandler;
+    private final GetOrderHistoryQueryHandler getOrderHistoryQueryHandler;
+    private final ListSubOrdersByOrderQueryHandler listSubOrdersByOrderQueryHandler;
+    private final GetOrderItemsQueryHandler getOrderItemsQueryHandler;
+    private final GetAppliedCouponsQueryHandler getAppliedCouponsQueryHandler;
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrderResponse>> createOrder(
             @Valid @RequestBody CreateOrderRequest request) {
-        CreateOrderUsecase.Result result = createOrderUsecase.execute(OrderWebMapper.toCreateOrderCommand(request));
+        CreateOrderResult result = createOrderCommandHandler.handle(OrderWebMapper.toCreateOrderCommand(request));
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(ApiResponse.success(OrderWebMapper.toResponse(result), "Order created successfully"));
@@ -66,7 +80,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable UUID id) {
-        GetOrderUsecase.Result result = getOrderUsecase.execute(OrderWebMapper.toGetOrderQuery(id));
+        GetOrderResult result = getOrderQueryHandler.handle(new GetOrderQuery(id));
         return ResponseEntity.ok(ApiResponse.success(OrderWebMapper.toResponse(result)));
     }
 
@@ -76,8 +90,7 @@ public class OrderController {
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        ListOrdersUsecase.Result result = listOrdersUsecase.execute(
-            OrderWebMapper.toListOrdersQuery(buyerId, status, page, size));
+        ListOrdersResult result = listOrdersQueryHandler.handle(new ListOrdersQuery(buyerId, status, page, size));
         List<OrderSummaryResponse> responses = result.orderResults().stream()
             .map(OrderWebMapper::toResponse).toList();
         return ResponseEntity.ok(PagedResponse.of(responses, page, size, responses.size()));
@@ -87,7 +100,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponse>> updateOrderStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
-        UpdateOrderStatusUsecase.Result result = updateOrderStatusUsecase.execute(
+        UpdateOrderStatusResult result = updateOrderStatusCommandHandler.handle(
             OrderWebMapper.toUpdateOrderStatusCommand(id, request));
         return ResponseEntity.ok(ApiResponse.success(OrderWebMapper.toResponse(result), "Order status updated"));
     }
@@ -96,14 +109,14 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponse>> cancelOrder(
             @PathVariable UUID id,
             @Valid @RequestBody CancelOrderRequest request) {
-        CancelOrderUsecase.Result result = cancelOrderUsecase.execute(
+        CancelOrderResult result = cancelOrderCommandHandler.handle(
             OrderWebMapper.toCancelOrderCommand(id, request));
         return ResponseEntity.ok(ApiResponse.success(OrderWebMapper.toResponse(result), "Order cancelled"));
     }
 
     @GetMapping("/{id}/history")
     public ResponseEntity<ApiResponse<List<OrderStatusHistoryResponse>>> getOrderHistory(@PathVariable UUID id) {
-        GetOrderHistoryUsecase.Result result = getOrderHistoryUsecase.execute(OrderWebMapper.toGetOrderHistoryQuery(id));
+        GetOrderHistoryResult result = getOrderHistoryQueryHandler.handle(new GetOrderHistoryQuery(id));
         List<OrderStatusHistoryResponse> responses = result.histories().stream()
             .map(OrderWebMapper::toResponse).toList();
         return ResponseEntity.ok(ApiResponse.success(responses));
@@ -111,8 +124,8 @@ public class OrderController {
 
     @GetMapping("/{orderId}/sub-orders")
     public ResponseEntity<ApiResponse<List<SubOrderSummaryResponse>>> listSubOrders(@PathVariable UUID orderId) {
-        ListSubOrdersByOrderUsecase.Result result = listSubOrdersByOrderUsecase.execute(
-            OrderWebMapper.toListSubOrdersQuery(orderId));
+        ListSubOrdersByOrderResult result = listSubOrdersByOrderQueryHandler.handle(
+            new ListSubOrdersByOrderQuery(orderId));
         List<SubOrderSummaryResponse> responses = result.subOrderResults().stream()
             .map(OrderWebMapper::toSubOrderSummaryResponse).toList();
         return ResponseEntity.ok(ApiResponse.success(responses));
@@ -120,8 +133,7 @@ public class OrderController {
 
     @GetMapping("/{orderId}/items")
     public ResponseEntity<ApiResponse<List<OrderItemResponse>>> getOrderItems(@PathVariable UUID orderId) {
-        GetOrderItemsUsecase.Result result = getOrderItemsUsecase.execute(
-            OrderWebMapper.toGetOrderItemsQuery(orderId));
+        GetOrderItemsResult result = getOrderItemsQueryHandler.handle(new GetOrderItemsQuery(orderId));
         List<OrderItemResponse> responses = result.items().stream()
             .map(OrderWebMapper::toResponse).toList();
         return ResponseEntity.ok(ApiResponse.success(responses));
@@ -129,8 +141,7 @@ public class OrderController {
 
     @GetMapping("/{orderId}/coupons")
     public ResponseEntity<ApiResponse<List<AppliedCouponResponse>>> getAppliedCoupons(@PathVariable UUID orderId) {
-        GetAppliedCouponsUsecase.Result result = getAppliedCouponsUsecase.execute(
-            OrderWebMapper.toGetAppliedCouponsQuery(orderId));
+        GetAppliedCouponsResult result = getAppliedCouponsQueryHandler.handle(new GetAppliedCouponsQuery(orderId));
         List<AppliedCouponResponse> responses = result.appliedCoupons().stream()
             .map(OrderWebMapper::toResponse).toList();
         return ResponseEntity.ok(ApiResponse.success(responses));

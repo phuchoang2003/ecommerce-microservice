@@ -1,11 +1,12 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.mapper;
 
-import com.hdp.core.util.EnumUtils;
-import com.hdp.order_service.application.port.in.GetSubOrderItemsUsecase;
-import com.hdp.order_service.application.port.in.GetSubOrderUsecase;
-import com.hdp.order_service.application.port.in.UpdateSubOrderStatusUsecase;
-import com.hdp.order_service.application.port.in.UpdateSubOrderTrackingUsecase;
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.application.port.in.getsuborder.GetSubOrderResult;
+import com.hdp.order_service.application.port.in.getsuborderitems.SubOrderItemView;
+import com.hdp.order_service.application.port.in.updatesuborderstatus.UpdateSubOrderStatusCommand;
+import com.hdp.order_service.application.port.in.updatesuborderstatus.UpdateSubOrderStatusResult;
+import com.hdp.order_service.application.port.in.updatesubordertracking.UpdateSubOrderTrackingCommand;
+import com.hdp.order_service.application.port.in.updatesubordertracking.UpdateSubOrderTrackingResult;
+import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.UpdateSubOrderStatusRequest;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.request.UpdateSubOrderTrackingRequest;
 import com.hdp.order_service.infrastructure.adapter.inbound.web.dto.response.OrderItemResponse;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Mapper for SubOrderController - converts between web DTOs and use case commands/results.
+ * Mapper for SubOrderController - converts between web DTOs and command/query handlers.
  */
 public final class SubOrderWebMapper {
 
@@ -24,21 +25,17 @@ public final class SubOrderWebMapper {
 
     // ==================== Command Mappers ====================
 
-    public static GetSubOrderUsecase.Command toGetSubOrderQuery(UUID id) {
-        return new GetSubOrderUsecase.Command(id);
-    }
-
-    public static UpdateSubOrderStatusUsecase.Command toUpdateSubOrderStatusCommand(UUID id, UpdateSubOrderStatusRequest request) {
-        return new UpdateSubOrderStatusUsecase.Command(
+    public static UpdateSubOrderStatusCommand toUpdateSubOrderStatusCommand(UUID id, UpdateSubOrderStatusRequest request) {
+        return new UpdateSubOrderStatusCommand(
             id,
-            EnumUtils.fromString(SubOrderStatus.class, request.status()),
+            request.status(),
             request.changedBy(),
             request.reason()
         );
     }
 
-    public static UpdateSubOrderTrackingUsecase.Command toUpdateSubOrderTrackingCommand(UUID id, UpdateSubOrderTrackingRequest request) {
-        return new UpdateSubOrderTrackingUsecase.Command(
+    public static UpdateSubOrderTrackingCommand toUpdateSubOrderTrackingCommand(UUID id, UpdateSubOrderTrackingRequest request) {
+        return new UpdateSubOrderTrackingCommand(
             id,
             request.trackingNumber(),
             request.carrier(),
@@ -47,13 +44,9 @@ public final class SubOrderWebMapper {
         );
     }
 
-    public static GetSubOrderItemsUsecase.Command toGetSubOrderItemsQuery(UUID subOrderId) {
-        return new GetSubOrderItemsUsecase.Command(subOrderId);
-    }
-
     // ==================== Response Mappers ====================
 
-    public static SubOrderResponse toResponse(GetSubOrderUsecase.Result r) {
+    public static SubOrderResponse toResponse(GetSubOrderResult r) {
         return toSubOrderResponse(
             r.id(), r.orderId(), r.sellerId(), r.sellerName(), r.status(),
             r.trackingNumber(), r.carrier(), r.estimatedDelivery(), r.note(),
@@ -61,7 +54,7 @@ public final class SubOrderWebMapper {
         );
     }
 
-    public static SubOrderResponse toResponse(UpdateSubOrderStatusUsecase.Result r) {
+    public static SubOrderResponse toResponse(UpdateSubOrderStatusResult r) {
         return toSubOrderResponse(
             r.id(), r.orderId(), r.sellerId(), r.sellerName(), r.status(),
             r.trackingNumber(), r.carrier(), r.estimatedDelivery(), r.note(),
@@ -69,7 +62,7 @@ public final class SubOrderWebMapper {
         );
     }
 
-    public static SubOrderResponse toResponse(UpdateSubOrderTrackingUsecase.Result r) {
+    public static SubOrderResponse toResponse(UpdateSubOrderTrackingResult r) {
         return toSubOrderResponse(
             r.id(), r.orderId(), r.sellerId(), r.sellerName(), r.status(),
             r.trackingNumber(), r.carrier(), r.estimatedDelivery(), r.note(),
@@ -77,7 +70,7 @@ public final class SubOrderWebMapper {
         );
     }
 
-    public static OrderItemResponse toResponse(GetSubOrderItemsUsecase.OrderItemResult r) {
+    public static OrderItemResponse toResponse(SubOrderItemView r) {
         return OrderItemResponse.builder()
             .id(r.id()).orderId(r.orderId()).subOrderId(r.subOrderId()).sellerId(r.sellerId())
             .productId(r.productId()).variantId(r.variantId()).productName(r.productName())

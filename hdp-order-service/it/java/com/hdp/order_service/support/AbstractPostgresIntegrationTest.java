@@ -19,8 +19,8 @@ import org.testcontainers.utility.DockerImageName;
  * an {@code EmbeddedKafkaBroker} or Confluent Testcontainers on top of this.
  *
  * <p>Tests should construct real Avro events and call the
- * {@code AvroEventDispatcher} bean directly. This exercises:
- * Spring DI, the {@code HandlerRegistry}, the JPA adapter, Hibernate,
+ * {@code ProductCreatedIntegrationEventHandler} bean directly. This exercises:
+ * Spring DI, the JPA adapter, Hibernate,
  * Flyway migrations, and the real Postgres DB.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)

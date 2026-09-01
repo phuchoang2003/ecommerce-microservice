@@ -4,12 +4,13 @@ import com.hdp.core.exception.DuplicateKeyBusinessException;
 import com.hdp.messaging.event.product.ProductCreatedEventData;
 import com.hdp.messaging.event.product.ProductCreatedIntegrationEvent;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
-import com.hdp.order_service.domain.model.valueobject.ProductSnapshot;
+import com.hdp.order_service.domain.valueobject.ProductSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.kafka.support.Acknowledgment;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -49,7 +50,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         UUID productId = UUID.randomUUID();
         ProductCreatedIntegrationEvent record = createEvent(productId.toString(), "Test Product", new BigDecimal("99.99"));
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         ArgumentCaptor<ProductSnapshot> captor = ArgumentCaptor.forClass(ProductSnapshot.class);
         verify(snapshotPersistencePort).save(captor.capture());
@@ -70,7 +71,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         doThrow(new DuplicateKeyBusinessException("ProductSnapshot", productId + "/" + productId))
                 .when(snapshotPersistencePort).save(any());
 
-        assertDoesNotThrow(() -> handler.handle(record));
+        assertDoesNotThrow(() -> handler.handle(record, mock(Acknowledgment.class)));
 
         verify(snapshotPersistencePort).save(any());
     }
@@ -80,7 +81,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(null);
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         verify(snapshotPersistencePort, never()).save(any());
     }
@@ -93,7 +94,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         verify(snapshotPersistencePort, never()).save(any());
     }
@@ -106,7 +107,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         verify(snapshotPersistencePort, never()).save(any());
     }
@@ -119,7 +120,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         verify(snapshotPersistencePort, never()).save(any());
     }
@@ -135,7 +136,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         ArgumentCaptor<ProductSnapshot> captor = ArgumentCaptor.forClass(ProductSnapshot.class);
         verify(snapshotPersistencePort).save(captor.capture());
@@ -155,7 +156,7 @@ class ProductCreatedIntegrationEventHandlerTest {
         ProductCreatedIntegrationEvent record = mock(ProductCreatedIntegrationEvent.class);
         when(record.getData()).thenReturn(data);
 
-        handler.handle(record);
+        handler.handle(record, mock(Acknowledgment.class));
 
         ArgumentCaptor<ProductSnapshot> captor = ArgumentCaptor.forClass(ProductSnapshot.class);
         verify(snapshotPersistencePort).save(captor.capture());

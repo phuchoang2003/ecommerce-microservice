@@ -9,4 +9,8 @@ com.hdp.common.infrastructure.schedule.SchedulerAutoConfiguration
 com.hdp.common.infrastructure.serialization.JacksonAutoConfiguration
 com.hdp.common.infrastructure.clock.ClockConfig
 com.hdp.common.infrastructure.info.ApplicationInfoAutoConfiguration
+com.hdp.common.persistence.datasource.DatasourceProxyConfiguration
+com.hdp.common.persistence.datasource.SqlCommentsAutoConfiguration
+com.hdp.common.persistence.event.DomainEventPublisherAutoConfiguration
+com.hdp.common.messaging.config.KafkaMessagingConfig
 com.hdp.observability.config.CommonTagsConfig

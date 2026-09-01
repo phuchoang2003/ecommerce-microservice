@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -45,9 +44,9 @@ public class OutboxProcessor {
         };
     }
 
-    private void sendToKafka(Object event, OutboxEventJpa outboxEvent) throws Exception {
+    private void sendToKafka(Object event, OutboxEventJpa outboxEvent) {
         String topic = resolveTopic(outboxEvent.getEventType());
-        publisher.sendAckWait(event, topic, outboxEvent.getMessageKey(), 5, TimeUnit.SECONDS);
+        publisher.send(event, topic, outboxEvent.getMessageKey());
     }
 
     public String resolveTopic(OutboxEventType eventType) {

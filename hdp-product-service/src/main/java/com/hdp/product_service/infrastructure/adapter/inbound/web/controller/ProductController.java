@@ -2,19 +2,31 @@ package com.hdp.product_service.infrastructure.adapter.inbound.web.controller;
 
 import com.hdp.common.web.dto.response.ApiResponse;
 import com.hdp.common.web.dto.response.PagedResponse;
-import com.hdp.product_service.application.port.in.CreateProductUsecase;
-import com.hdp.product_service.application.port.in.DeleteProductUsecase;
-import com.hdp.product_service.application.port.in.GetProductUsecase;
-import com.hdp.product_service.application.port.in.ListProductsUsecase;
-import com.hdp.product_service.application.port.in.UpdateProductStatusUsecase;
-import com.hdp.product_service.application.port.in.UpdateProductUsecase;
+import com.hdp.product_service.application.port.in.createproduct.CreateProductCommand;
+import com.hdp.product_service.application.port.in.createproduct.CreateProductCommandHandler;
+import com.hdp.product_service.application.port.in.createproduct.CreateProductResult;
+import com.hdp.product_service.application.port.in.deleteproduct.DeleteProductCommand;
+import com.hdp.product_service.application.port.in.deleteproduct.DeleteProductCommandHandler;
+import com.hdp.product_service.application.port.in.deleteproduct.DeleteProductResult;
+import com.hdp.product_service.application.port.in.getproduct.GetProductQuery;
+import com.hdp.product_service.application.port.in.getproduct.GetProductQueryHandler;
+import com.hdp.product_service.application.port.in.getproduct.GetProductResult;
+import com.hdp.product_service.application.port.in.listproducts.ListProductsQuery;
+import com.hdp.product_service.application.port.in.listproducts.ListProductsQueryHandler;
+import com.hdp.product_service.application.port.in.listproducts.ListProductsResult;
+import com.hdp.product_service.application.port.in.listproducts.ProductSummary;
+import com.hdp.product_service.application.port.in.updateproduct.UpdateProductCommand;
+import com.hdp.product_service.application.port.in.updateproduct.UpdateProductCommandHandler;
+import com.hdp.product_service.application.port.in.updateproduct.UpdateProductResult;
+import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusCommand;
+import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusCommandHandler;
+import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusResult;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request.CreateProductRequest;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request.UpdateProductRequest;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.request.UpdateProductStatusRequest;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.response.ProductResponse;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.dto.response.ProductSummaryResponse;
 import com.hdp.product_service.infrastructure.adapter.inbound.web.mapper.ProductWebMapper;
-import com.hdp.core.request.PageQuery;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,18 +50,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final CreateProductUsecase createProductUsecase;
-    private final GetProductUsecase getProductUsecase;
-    private final ListProductsUsecase listProductsUsecase;
-    private final UpdateProductUsecase updateProductUsecase;
-    private final UpdateProductStatusUsecase updateProductStatusUsecase;
-    private final DeleteProductUsecase deleteProductUsecase;
+    private final CreateProductCommandHandler createProductCommandHandler;
+    private final GetProductQueryHandler getProductQueryHandler;
+    private final ListProductsQueryHandler listProductsQueryHandler;
+    private final UpdateProductCommandHandler updateProductCommandHandler;
+    private final UpdateProductStatusCommandHandler updateProductStatusCommandHandler;
+    private final DeleteProductCommandHandler deleteProductCommandHandler;
     private final ProductWebMapper productWebMapper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(
             @Valid @RequestBody CreateProductRequest request) {
-        CreateProductUsecase.Result result = createProductUsecase.execute(
+        CreateProductResult result = createProductCommandHandler.handle(
             productWebMapper.toCreateCommand(request));
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -58,7 +70,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> getProduct(@PathVariable UUID id) {
-        CreateProductUsecase.Result result = getProductUsecase.execute(new GetProductUsecase.Command(id));
+        GetProductResult result = getProductQueryHandler.handle(new GetProductQuery(id));
         return ResponseEntity.ok(ApiResponse.success(productWebMapper.toResponse(result)));
     }
 
@@ -70,12 +82,11 @@ public class ProductController {
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PageQuery pageQuery = new PageQuery(page, size, List.of(), List.of());
-        ListProductsUsecase.Command command = new ListProductsUsecase.Command(
-            pageQuery, sellerId, categoryId,
+        ListProductsQuery query = new ListProductsQuery(
+            page, size, sellerId, categoryId,
             status != null ? com.hdp.product_service.domain.model.valueobject.ProductStatus.valueOf(status) : null,
             name);
-        ListProductsUsecase.Result result = listProductsUsecase.execute(command);
+        ListProductsResult result = listProductsQueryHandler.handle(query);
         List<ProductSummaryResponse> responses = result.products().stream()
             .map(productWebMapper::toSummaryResponse).toList();
         return ResponseEntity.ok(PagedResponse.of(responses, page, size, result.totalElements()));
@@ -85,7 +96,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateProductRequest request) {
-        CreateProductUsecase.Result result = updateProductUsecase.execute(
+        UpdateProductResult result = updateProductCommandHandler.handle(
             productWebMapper.toUpdateCommand(id.toString(), request));
         return ResponseEntity.ok(ApiResponse.success(productWebMapper.toResponse(result), "Product updated successfully"));
     }
@@ -94,7 +105,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponse>> updateProductStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateProductStatusRequest request) {
-        CreateProductUsecase.Result result = updateProductStatusUsecase.execute(
+        UpdateProductStatusResult result = updateProductStatusCommandHandler.handle(
             productWebMapper.toUpdateStatusCommand(id.toString(), request));
         return ResponseEntity.ok(ApiResponse.success(productWebMapper.toResponse(result), "Product status updated"));
     }
@@ -103,8 +114,8 @@ public class ProductController {
     public ResponseEntity<ApiResponse<Void>> deleteProduct(
             @PathVariable UUID id,
             @RequestParam UUID sellerId) {
-        DeleteProductUsecase.Result result = deleteProductUsecase.execute(
-            new DeleteProductUsecase.Command(id, sellerId));
+        DeleteProductResult result = deleteProductCommandHandler.handle(
+            new DeleteProductCommand(id, sellerId));
         return ResponseEntity.ok(ApiResponse.success(null, "Product deleted successfully"));
     }
 }

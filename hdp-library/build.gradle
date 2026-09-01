@@ -22,6 +22,8 @@ configurations {
 
 ext {
     set('lombokVersion', '1.18.42')
+    set('confluentVersion', '7.5.0')
+    set('avroVersion', '1.11.3')
 }
 
 dependencyManagement {
@@ -32,6 +34,7 @@ dependencyManagement {
 
 repositories {
     mavenCentral()
+    maven { url 'https://packages.confluent.io/maven/' }
 }
 
 configurations.all {
@@ -52,6 +55,20 @@ dependencies {
     // Observability (formerly hdp-common-observability)
     api 'org.springframework.boot:spring-boot-starter-actuator'
     api 'io.micrometer:micrometer-core'
+
+    // Persistence — DataSource proxy + SQL comments (formerly hdp-common-persistence)
+    api 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:2.0.0'
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Messaging — Kafka + Avro (formerly hdp-common-messaging)
+    compileOnly 'org.springframework.kafka:spring-kafka'
+    // Confluent Avro serializer pulls swagger-annotations:2.1.10 which conflicts
+    // with swagger-annotations-jakarta:2.2.27 from springdoc on Boot 4.x
+    // (NoSuchMethodError on requiredMode at /v3/api-docs). Drop the legacy one.
+    compileOnly("io.confluent:kafka-avro-serializer:${confluentVersion}") {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-annotations'
+    }
+    compileOnly "org.apache.avro:avro:${avroVersion}"
 
     api 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

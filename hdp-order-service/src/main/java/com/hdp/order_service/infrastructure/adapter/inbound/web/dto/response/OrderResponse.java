@@ -1,7 +1,7 @@
 package com.hdp.order_service.infrastructure.adapter.inbound.web.dto.response;
 
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.PaymentMethod;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.OrderJpa;
 import lombok.Builder;
 

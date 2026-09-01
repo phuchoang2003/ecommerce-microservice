@@ -89,9 +89,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.apache.commons:commons-pool2'
 
-    // Inlined from hdp-common-persistence (formerly common)
-    implementation 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:2.0.0'
-
     // Inlined from hdp-common-messaging (formerly common) — Kafka + Avro
     implementation 'org.springframework.kafka:spring-kafka'
     // Confluent Avro serializer pulls swagger-annotations:2.1.10 which conflicts

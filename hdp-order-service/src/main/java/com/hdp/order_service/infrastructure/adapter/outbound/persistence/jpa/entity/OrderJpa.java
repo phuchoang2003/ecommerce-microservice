@@ -1,8 +1,8 @@
 package com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity;
 
 import com.hdp.common.persistence.entity.BaseEntityJpa;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
+import com.hdp.order_service.domain.valueobject.OrderStatus;
+import com.hdp.order_service.domain.valueobject.PaymentMethod;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

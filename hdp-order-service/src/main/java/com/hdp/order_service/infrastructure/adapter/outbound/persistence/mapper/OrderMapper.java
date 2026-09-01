@@ -1,14 +1,12 @@
 package com.hdp.order_service.infrastructure.adapter.outbound.persistence.mapper;
 
 import com.hdp.order_service.domain.model.*;
-import com.hdp.order_service.domain.model.valueobject.OrderStatus;
-import com.hdp.order_service.domain.model.valueobject.PaymentMethod;
-import com.hdp.order_service.domain.model.valueobject.SubOrderStatus;
+import com.hdp.order_service.domain.valueobject.OrderId;
+import com.hdp.order_service.domain.valueobject.OrderNumber;
 import com.hdp.order_service.infrastructure.adapter.outbound.persistence.jpa.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -18,8 +16,8 @@ public class OrderMapper {
         if (jpa == null) return null;
 
         return Order.builder()
-                .id(jpa.getId())
-                .orderNumber(jpa.getOrderNumber())
+                .id(OrderId.of(jpa.getId()))
+                .orderNumber(OrderNumber.of(jpa.getOrderNumber()))
                 .buyerId(jpa.getBuyerId())
                 .shippingAddressId(jpa.getShippingAddressId())
                 .paymentMethod(jpa.getPaymentMethod())
@@ -47,7 +45,7 @@ public class OrderMapper {
         if (domain == null) return null;
 
         OrderJpa jpa = OrderJpa.builder()
-                .orderNumber(domain.getOrderNumber())
+                .orderNumber(domain.getOrderNumber().value())
                 .buyerId(domain.getBuyerId())
                 .shippingAddressId(domain.getShippingAddressId())
                 .paymentMethod(domain.getPaymentMethod())
@@ -65,7 +63,7 @@ public class OrderMapper {
                 .build();
 
         if (domain.getId() != null) {
-            jpa.setId(domain.getId());
+            jpa.setId(domain.getId().value());
         }
         if (domain.getCreatedAt() != null) {
             jpa.setCreatedAt(domain.getCreatedAt());
