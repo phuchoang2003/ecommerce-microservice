@@ -1,6 +1,7 @@
 package com.hdp.product_service.filestorage.service;
 
 import com.hdp.product_service.application.port.in.generatepresignedurl.GeneratePresignedUrlCommand;
+import com.hdp.product_service.application.port.in.generatepresignedurl.GeneratePresignedUrlResult;
 import com.hdp.product_service.filestorage.FileStorageService;
 import com.hdp.product_service.filestorage.command.DeleteFilesCommand;
 import com.hdp.product_service.filestorage.command.DownloadFileCommand;
