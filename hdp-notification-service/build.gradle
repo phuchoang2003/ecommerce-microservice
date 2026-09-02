@@ -47,6 +47,7 @@ configurations.all {
 dependencies {
     implementation project(':hdp-library')
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.kafka:spring-kafka'
     compileOnly 'org.projectlombok:lombok'
