@@ -1,5 +1,7 @@
 package com.hdp.common.filestorage.service;
 
+import com.hdp.product_service.application.port.in.generatepresignedurl.GeneratePresignedUrlCommand;
+import com.hdp.product_service.application.port.in.generatepresignedurl.GeneratePresignedUrlResult;
 import com.hdp.product_service.filestorage.properties.AwsProperties;
 import com.hdp.product_service.filestorage.service.FileStorageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,8 +70,7 @@ class FileStorageServiceImplTest {
         GeneratePresignedUrlCommand command = new GeneratePresignedUrlCommand(
                 "test-image.png",
                 "image/png",
-                "products",
-                null
+                "products"
         );
 
         GeneratePresignedUrlResult result = fileStorageServiceImpl.generatePresignedUploadUrl(command);
@@ -89,9 +90,7 @@ class FileStorageServiceImplTest {
         GeneratePresignedUrlCommand command = new GeneratePresignedUrlCommand(
                 "document.pdf",
                 "application/pdf",
-                "documents",
-                null
-        );
+                "documents");
 
         GeneratePresignedUrlResult result = fileStorageServiceImpl.generatePresignedUploadUrl(command);
 
@@ -115,9 +114,7 @@ class FileStorageServiceImplTest {
         GeneratePresignedUrlCommand command = new GeneratePresignedUrlCommand(
                 "image.jpg",
                 "image/jpeg",
-                "images",
-                null
-        );
+                "images");
 
         GeneratePresignedUrlResult result = fileStorageServiceImpl.generatePresignedUploadUrl(command);
 
