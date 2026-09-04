@@ -1,6 +1,7 @@
 package com.hdp.order_service.domain.model;
 
 import com.hdp.core.exception.BusinessException;
+import com.hdp.order_service.domain.exception.OrderErrorCode;
 import com.hdp.order_service.domain.valueobject.SubOrderStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,8 +52,8 @@ public class SubOrder {
 
     public void updateStatus(SubOrderStatus newStatus) {
         if (!this.status.canTransitionTo(newStatus)) {
-            throw new BusinessException("INVALID_STATUS_TRANSITION",
-                "Cannot transition SubOrder from " + this.status + " to " + newStatus);
+            throw new BusinessException(OrderErrorCode.SUBORDER_INVALID_STATUS_TRANSITION,
+                this.status, newStatus);
         }
         this.status = newStatus;
         this.updatedAt = Instant.now();
@@ -66,16 +67,16 @@ public class SubOrder {
 
     public void cancel() {
         if (!this.status.isCancellable()) {
-            throw new BusinessException("SUBORDER_NOT_CANCELLABLE",
-                "SubOrder in status " + this.status + " cannot be cancelled");
+            throw new BusinessException(OrderErrorCode.SUBORDER_NOT_CANCELLABLE,
+                this.status);
         }
         updateStatus(SubOrderStatus.CANCELLED);
     }
 
     public void updateTracking(String trackingNumber, String carrier, LocalDate estimatedDelivery) {
         if (this.status != SubOrderStatus.SHIPPED && this.status != SubOrderStatus.PROCESSING) {
-            throw new BusinessException("INVALID_TRACKING_UPDATE",
-                "Cannot update tracking for SubOrder in status " + this.status);
+            throw new BusinessException(OrderErrorCode.SUBORDER_INVALID_TRACKING_UPDATE,
+                this.status);
         }
         this.trackingNumber = trackingNumber;
         this.carrier = carrier;

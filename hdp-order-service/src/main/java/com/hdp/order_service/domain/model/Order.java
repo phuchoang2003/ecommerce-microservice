@@ -1,6 +1,7 @@
 package com.hdp.order_service.domain.model;
 
 import com.hdp.core.exception.BusinessException;
+import com.hdp.order_service.domain.exception.OrderErrorCode;
 import com.hdp.order_service.domain.valueobject.OrderId;
 import com.hdp.order_service.domain.valueobject.OrderNumber;
 import com.hdp.order_service.domain.valueobject.OrderStatus;
@@ -73,8 +74,8 @@ public class Order {
 
     public void updateStatus(OrderStatus newStatus, UUID changedBy, String reason) {
         if (!this.status.canTransitionTo(newStatus)) {
-            throw new BusinessException("INVALID_STATUS_TRANSITION",
-                "Cannot transition Order from " + this.status + " to " + newStatus);
+            throw new BusinessException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION,
+                this.status, newStatus);
         }
 
         OrderStatus previousStatus = this.status;
@@ -92,8 +93,8 @@ public class Order {
 
     public void cancel(UUID cancelledBy, String reason) {
         if (!this.status.isCancellable()) {
-            throw new BusinessException("ORDER_NOT_CANCELLABLE",
-                "Order in status " + this.status + " cannot be cancelled");
+            throw new BusinessException(OrderErrorCode.ORDER_NOT_CANCELLABLE,
+                this.status);
         }
         this.cancellationReason = reason;
         updateStatus(OrderStatus.CANCELLED, cancelledBy, reason);

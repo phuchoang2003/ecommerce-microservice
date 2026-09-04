@@ -1,0 +1,25 @@
+## Stage 1: Build the application
+FROM eclipse-temurin:25-jdk AS build
+
+WORKDIR /app
+
+# Build context must be the project root (one level above this file).
+# The customer-service module, common libs, and gradlew all need to be visible
+# to Gradle so :hdp-customer-service:bootJar can resolve project dependencies.
+COPY . .
+
+# Strip Windows CRLF on gradlew (otherwise the shebang is broken on Linux)
+# and make it executable.
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
+
+RUN ./gradlew :hdp-customer-service:bootJar -x test
+
+## Stage 2: Package the application
+FROM eclipse-temurin:25-jre
+
+WORKDIR /app
+COPY --from=build /app/hdp-customer-service/build/libs/hdp-customer-service-0.0.1-SNAPSHOT.jar customer-service.jar
+
+EXPOSE 8082
+
+ENTRYPOINT ["java", "-jar", "customer-service.jar"]

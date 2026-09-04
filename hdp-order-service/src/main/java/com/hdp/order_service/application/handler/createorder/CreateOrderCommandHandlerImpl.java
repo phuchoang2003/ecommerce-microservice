@@ -5,6 +5,7 @@ import com.hdp.core.exception.NotFoundException;
 import com.hdp.order_service.application.port.in.createorder.CreateOrderCommand;
 import com.hdp.order_service.application.port.in.createorder.CreateOrderCommandHandler;
 import com.hdp.order_service.application.port.in.createorder.CreateOrderResult;
+import com.hdp.order_service.application.port.out.OrderNumberGenerator;
 import com.hdp.order_service.application.port.out.OrderPersistencePort;
 import com.hdp.order_service.application.port.out.ProductionSnapshotPersistencePort;
 import com.hdp.order_service.domain.event.OrderCreatedDomainEvent;
@@ -37,6 +38,7 @@ public class CreateOrderCommandHandlerImpl implements CreateOrderCommandHandler 
     private final OrderPersistencePort orderPersistence;
     private final DomainEventPublisher eventPublisher;
     private final ProductionSnapshotPersistencePort productionSnapshotPersistence;
+    private final OrderNumberGenerator orderNumberGenerator;
     private final OrderValidationStep orderValidation;
 
     @Override
@@ -44,12 +46,14 @@ public class CreateOrderCommandHandlerImpl implements CreateOrderCommandHandler 
     public CreateOrderResult handle(CreateOrderCommand command) {
         Map<UUID, ProductSnapshot> snapshotMap = validateProducts(command.items());
         orderValidation.validate(command);
+        OrderNumber orderNumber = new OrderNumber(orderNumberGenerator.generate());
+
+        log.info("Order number {} successful validation", orderNumber.value());
 
         BigDecimal subtotal = command.items().stream()
             .map(item -> snapshotMap.get(item.productId()).price().multiply(BigDecimal.valueOf(item.quantity())))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        OrderNumber orderNumber = new OrderNumber(UUID.randomUUID().toString().substring(0, 14));
 
         Order order = Order.builder()
             .orderNumber(orderNumber)

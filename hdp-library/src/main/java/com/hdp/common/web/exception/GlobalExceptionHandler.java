@@ -4,6 +4,7 @@ package com.hdp.common.web.exception;
 import com.hdp.core.constant.DelimeterConstants;
 import com.hdp.core.constant.RequestContextConstants;
 import com.hdp.core.exception.BusinessException;
+import com.hdp.core.exception.CoreErrorCode;
 import com.hdp.core.exception.ErrorCode;
 import com.hdp.core.util.NamingConvetionUtils;
 import jakarta.validation.ConstraintDeclarationException;
@@ -91,12 +92,12 @@ public class GlobalExceptionHandler {
             }
         });
 
-        String message = messageSource.getMessage(ErrorCode.VALIDATION_ERROR.getMessageKey(), null, locale);
+        String message = messageSource.getMessage(CoreErrorCode.VALIDATION_ERROR.getMessageKey(), null, locale);
 
-        ProblemDetail problemDetail = createProblemDetail(ErrorCode.VALIDATION_ERROR, message, request);
+        ProblemDetail problemDetail = createProblemDetail(CoreErrorCode.VALIDATION_ERROR, message, request);
         problemDetail.setProperty(RequestContextConstants.ERROR_DETAIL, errors);
 
-        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ErrorCode.VALIDATION_ERROR)).body(problemDetail);
+        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(CoreErrorCode.VALIDATION_ERROR)).body(problemDetail);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -104,11 +105,11 @@ public class GlobalExceptionHandler {
         log.error("Constraint violation: {}", ex.getMessage());
 
         Locale locale = LocaleContextHolder.getLocale();
-        String message = messageSource.getMessage(ErrorCode.CONSTRAINT_VIOLATION.getMessageKey(), null, locale);
+        String message = messageSource.getMessage(CoreErrorCode.CONSTRAINT_VIOLATION.getMessageKey(), null, locale);
 
-        ProblemDetail problemDetail = createProblemDetail(ErrorCode.CONSTRAINT_VIOLATION, message, request);
+        ProblemDetail problemDetail = createProblemDetail(CoreErrorCode.CONSTRAINT_VIOLATION, message, request);
 
-        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ErrorCode.CONSTRAINT_VIOLATION)).body(problemDetail);
+        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(CoreErrorCode.CONSTRAINT_VIOLATION)).body(problemDetail);
     }
 
     @ExceptionHandler(ConstraintDeclarationException.class)
@@ -116,11 +117,11 @@ public class GlobalExceptionHandler {
         log.error("Constraint declaration error: {}", ex.getMessage());
 
         Locale locale = LocaleContextHolder.getLocale();
-        String message = messageSource.getMessage(ErrorCode.CONSTRAINT_DECLARATION_ERROR.getMessageKey(), null, locale);
+        String message = messageSource.getMessage(CoreErrorCode.CONSTRAINT_DECLARATION_ERROR.getMessageKey(), null, locale);
 
-        ProblemDetail problemDetail = createProblemDetail(ErrorCode.CONSTRAINT_DECLARATION_ERROR, message, request);
+        ProblemDetail problemDetail = createProblemDetail(CoreErrorCode.CONSTRAINT_DECLARATION_ERROR, message, request);
 
-        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ErrorCode.CONSTRAINT_DECLARATION_ERROR)).body(problemDetail);
+        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(CoreErrorCode.CONSTRAINT_DECLARATION_ERROR)).body(problemDetail);
     }
 
     @ExceptionHandler(Exception.class)
@@ -128,11 +129,11 @@ public class GlobalExceptionHandler {
         log.error("Unexpected exception: ", ex);
 
         Locale locale = LocaleContextHolder.getLocale();
-        String message = messageSource.getMessage(ErrorCode.INTERNAL_ERROR.getMessageKey(), null, locale);
+        String message = messageSource.getMessage(CoreErrorCode.INTERNAL_ERROR.getMessageKey(), null, locale);
 
-        ProblemDetail problemDetail = createProblemDetail(ErrorCode.INTERNAL_ERROR, message, request);
+        ProblemDetail problemDetail = createProblemDetail(CoreErrorCode.INTERNAL_ERROR, message, request);
 
-        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(ErrorCode.INTERNAL_ERROR)).body(problemDetail);
+        return ResponseEntity.status(ErrorCodeHttpMapper.toHttpStatus(CoreErrorCode.INTERNAL_ERROR)).body(problemDetail);
     }
 
     private URI getRequestUri(WebRequest request) {

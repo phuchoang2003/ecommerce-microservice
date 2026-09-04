@@ -99,6 +99,49 @@ services:
     networks:
       - ecommerce-net
 
+  customer-service:
+    build:
+      context: .
+      dockerfile: hdp-customer-service/dockerfile
+    image: hdp-customer-service:latest
+    container_name: customer-service
+    ports:
+      - "8082:8082"
+    environment:
+      # DB: customer-db:5432 is the in-container port (host port 5435 is for the
+      # host machine only).
+      DB_URL: jdbc:postgresql://customer-db:5432/customer_db
+      DB_USERNAME: hdp_user
+      DB_PASSWORD: postgres
+    depends_on:
+      customer-db:
+        condition: service_healthy
+    networks:
+      - ecommerce-net
+
+  customer-db:
+    image: postgres:18.3
+    restart: always
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: hdp_user
+      POSTGRES_DB: customer_db
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    volumes:
+      - customer_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hdp_user -d customer_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
+
   kafka:
     image: apache/kafka:3.7.0
     container_name: kafka
@@ -157,6 +200,7 @@ services:
 volumes:
   order_data:
   product_data:
+  customer_data:
   grafana-data:
   redis_data:
 
