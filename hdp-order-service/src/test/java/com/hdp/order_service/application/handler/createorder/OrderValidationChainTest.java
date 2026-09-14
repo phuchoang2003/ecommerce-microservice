@@ -36,7 +36,8 @@ class OrderValidationChainTest {
     void setUp() {
         customerStep = new CustomerValidationStep(customerClientPort);
         fraudStep = spy(new FraudValidationStep());
-        chain = customerStep.next(fraudStep);
+        customerStep.setNext(fraudStep);
+        chain = customerStep;
     }
 
     @Test
