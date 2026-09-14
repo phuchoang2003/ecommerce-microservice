@@ -12,4 +12,5 @@ public interface UserPersistencePort {
     Optional<User> findByIdAndNotDeleted(UUID id);
     boolean existsByEmail(String email);
     User getById(UserId id);
+    void softDelete(UUID id);
 }

@@ -7,7 +7,6 @@ import com.hdp.customer_service.application.port.in.updateuser.UpdateUserCommand
 import com.hdp.customer_service.application.port.in.updateuser.UpdateUserResult;
 import com.hdp.customer_service.application.port.out.UserPersistencePort;
 import com.hdp.customer_service.domain.model.User;
-import com.hdp.customer_service.domain.valueobject.UserId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,10 +22,8 @@ public class UpdateUserCommandHandlerImpl implements UpdateUserCommandHandler {
     @Override
     @Transactional
     public UpdateUserResult handle(UpdateUserCommand command) {
-        User user = userPersistence.getById(UserId.of(command.id()));
-        if (user == null) {
-            throw new NotFoundException("User", command.id());
-        }
+        User user = userPersistence.findByIdAndNotDeleted(command.id())
+            .orElseThrow(() -> new NotFoundException("User", command.id()));
 
         if (!user.getEmail().equalsIgnoreCase(command.email())
                 && userPersistence.existsByEmail(command.email())) {

@@ -3,10 +3,8 @@ package com.hdp.customer_service.domain.model;
 import com.hdp.core.exception.BusinessException;
 import com.hdp.customer_service.domain.valueobject.Address;
 import com.hdp.customer_service.domain.valueobject.Gender;
-import com.hdp.customer_service.domain.valueobject.UserId;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class UserTest {
 
     @Test
-    void create_assignsGeneratedIdAndTimestamps() {
+    void create_assignsGeneratedIdAndProfileFields() {
         User user = User.create("Alice", "alice@example.com", "+84123456789",
             LocalDate.of(1990, 1, 1), Gender.FEMALE, "https://cdn/avatar.png",
             List.of(new Address(null, "123 Le Loi", null, null, "HCMC", "VN")));
@@ -30,10 +28,6 @@ class UserTest {
         assertThat(user.getGender()).isEqualTo(Gender.FEMALE);
         assertThat(user.getAvatarUrl()).isEqualTo("https://cdn/avatar.png");
         assertThat(user.getAddresses()).hasSize(1);
-        assertThat(user.getCreatedAt()).isNotNull();
-        assertThat(user.getUpdatedAt()).isNotNull();
-        assertThat(user.getDeletedAt()).isNull();
-        assertThat(user.isDeleted()).isFalse();
     }
 
     @Test
@@ -76,13 +70,10 @@ class UserTest {
     }
 
     @Test
-    void update_replacesAllFieldsAndBumpsUpdatedAt() throws InterruptedException {
+    void update_replacesAllFields() {
         User user = User.create("Alice", "alice@example.com", "+84123456789",
             LocalDate.of(1990, 1, 1), Gender.FEMALE, "old-avatar",
             List.of(new Address(null, "123 Le Loi", null, null, "HCMC", "VN")));
-
-        Instant originalUpdatedAt = user.getUpdatedAt();
-        Thread.sleep(10);
 
         user.update("Alice Updated", "alice2@example.com", "+84987654321",
             LocalDate.of(1991, 2, 2), Gender.OTHER, "new-avatar",
@@ -96,7 +87,6 @@ class UserTest {
         assertThat(user.getAvatarUrl()).isEqualTo("new-avatar");
         assertThat(user.getAddresses()).hasSize(1);
         assertThat(user.getAddresses().get(0).city()).isEqualTo("Hanoi");
-        assertThat(user.getUpdatedAt()).isAfter(originalUpdatedAt);
     }
 
     @Test
@@ -110,47 +100,6 @@ class UserTest {
         user.update("Alice", "alice@example.com", null, null, null, null, List.of());
 
         assertThat(user.getAddresses()).isEmpty();
-    }
-
-    @Test
-    void update_throwsOnDeletedUser() {
-        UserId id = UserId.generate();
-        Instant now = Instant.now();
-        User deleted = User.reconstitute(id, "Alice", "a@y.com", null, null, null, null,
-            List.of(), now, now, now);
-
-        assertThatThrownBy(() -> deleted.update("Bob", "b@y.com", null, null, null, null, null))
-            .isInstanceOf(BusinessException.class)
-            .satisfies(t -> {
-                BusinessException ex = (BusinessException) t;
-                assertThat(ex.getMessage()).isEqualTo("USER_ALREADY_DELETED");
-            });
-    }
-
-    @Test
-    void softDelete_setsDeletedAtAndIsDeletedReturnsTrue() {
-        User user = User.create("Alice", "alice@example.com", null, null, null, null, null);
-        assertThat(user.isDeleted()).isFalse();
-
-        user.softDelete();
-
-        assertThat(user.isDeleted()).isTrue();
-        assertThat(user.getDeletedAt()).isNotNull();
-    }
-
-    @Test
-    void softDelete_throwsWhenAlreadyDeleted() {
-        UserId id = UserId.generate();
-        Instant now = Instant.now();
-        User deleted = User.reconstitute(id, "Alice", "a@y.com", null, null, null, null,
-            List.of(), now, now, now);
-
-        assertThatThrownBy(deleted::softDelete)
-            .isInstanceOf(BusinessException.class)
-            .satisfies(t -> {
-                BusinessException ex = (BusinessException) t;
-                assertThat(ex.getMessage()).isEqualTo("USER_ALREADY_DELETED");
-            });
     }
 
     @Test

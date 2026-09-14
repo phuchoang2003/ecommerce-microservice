@@ -49,8 +49,6 @@ class CreateUserCommandHandlerImplTest {
         assertThat(result.email()).isEqualTo("alice@example.com");
         assertThat(result.id()).isNotNull();
         assertThat(result.addresses()).hasSize(1);
-        assertThat(result.createdAt()).isNotNull();
-        assertThat(result.updatedAt()).isNotNull();
         verify(userPersistence, times(1)).save(any(User.class));
     }
 

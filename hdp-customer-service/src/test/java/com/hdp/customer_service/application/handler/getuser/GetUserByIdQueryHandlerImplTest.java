@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +38,7 @@ class GetUserByIdQueryHandlerImplTest {
         User user = User.reconstitute(
             UserId.of(id), "Alice", "alice@example.com", "+84123456789",
             LocalDate.of(1990, 1, 1), Gender.FEMALE, "https://cdn/a.png",
-            List.of(new Address(addressId, "123 Le Loi", null, null, "HCMC", "VN")),
-            null, Instant.now(), Instant.now()
+            List.of(new Address(addressId, "123 Le Loi", null, null, "HCMC", "VN"))
         );
         when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.of(user));
 

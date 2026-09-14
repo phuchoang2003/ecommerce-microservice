@@ -14,9 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +42,7 @@ class UpdateUserCommandHandlerImplTest {
             UserId.of(UUID.randomUUID()),
             "Alice", email, "+84123456789",
             LocalDate.of(1990, 1, 1), Gender.FEMALE, "old-avatar",
-            List.of(new Address(null, "123 Le Loi", null, null, "HCMC", "VN")),
-            null, Instant.now(), Instant.now()
+            List.of(new Address(null, "123 Le Loi", null, null, "HCMC", "VN"))
         );
     }
 
@@ -51,7 +50,7 @@ class UpdateUserCommandHandlerImplTest {
     void handle_updatesAndReturnsResult() {
         User existing = existingUser("alice@example.com");
         UUID id = existing.getId().value();
-        when(userPersistence.getById(UserId.of(id))).thenReturn(existing);
+        when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.of(existing));
         when(userPersistence.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
         UpdateUserCommand cmd = new UpdateUserCommand(
@@ -77,7 +76,7 @@ class UpdateUserCommandHandlerImplTest {
     @Test
     void handle_throwsNotFoundWhenUserMissing() {
         UUID id = UUID.randomUUID();
-        when(userPersistence.getById(UserId.of(id))).thenReturn(null);
+        when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.empty());
 
         UpdateUserCommand cmd = new UpdateUserCommand(
             id, "X", "x@y.com", null, null, null, null, null
@@ -93,7 +92,7 @@ class UpdateUserCommandHandlerImplTest {
     void handle_throwsDuplicateKeyWhenEmailChangedToExistingOne() {
         User existing = existingUser("alice@example.com");
         UUID id = existing.getId().value();
-        when(userPersistence.getById(UserId.of(id))).thenReturn(existing);
+        when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.of(existing));
         when(userPersistence.existsByEmail("bob@example.com")).thenReturn(true);
 
         UpdateUserCommand cmd = new UpdateUserCommand(
@@ -110,7 +109,7 @@ class UpdateUserCommandHandlerImplTest {
     void handle_skipsDuplicateCheckWhenEmailUnchanged() {
         User existing = existingUser("alice@example.com");
         UUID id = existing.getId().value();
-        when(userPersistence.getById(UserId.of(id))).thenReturn(existing);
+        when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.of(existing));
         when(userPersistence.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
         UpdateUserCommand cmd = new UpdateUserCommand(
@@ -123,25 +122,16 @@ class UpdateUserCommandHandlerImplTest {
     }
 
     @Test
-    void handle_throwsOnDeletedUser() {
+    void handle_throwsNotFoundWhenUserAlreadyDeleted() {
         UUID id = UUID.randomUUID();
-        Instant now = Instant.now();
-        User deleted = User.reconstitute(
-            UserId.of(id), "Alice", "alice@example.com", null, null, null, null,
-            List.of(), now, now, now
-        );
-        when(userPersistence.getById(UserId.of(id))).thenReturn(deleted);
+        when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.empty());
 
         UpdateUserCommand cmd = new UpdateUserCommand(
             id, "X", "x@y.com", null, null, null, null, null
         );
 
         assertThatThrownBy(() -> handler.handle(cmd))
-            .isInstanceOf(com.hdp.core.exception.BusinessException.class)
-            .satisfies(t -> {
-                com.hdp.core.exception.BusinessException ex = (com.hdp.core.exception.BusinessException) t;
-                assertThat(ex.getMessage()).isEqualTo("USER_ALREADY_DELETED");
-            });
+            .isInstanceOf(NotFoundException.class);
 
         verify(userPersistence, never()).save(any(User.class));
     }
@@ -153,11 +143,10 @@ class UpdateUserCommandHandlerImplTest {
             List.of(
                 new Address(null, "A", null, null, "HCMC", "VN"),
                 new Address(null, "B", null, null, "Hanoi", "VN")
-            ),
-            null, Instant.now(), Instant.now()
+            )
         );
         UUID id = existing.getId().value();
-        when(userPersistence.getById(UserId.of(id))).thenReturn(existing);
+        when(userPersistence.findByIdAndNotDeleted(id)).thenReturn(Optional.of(existing));
         when(userPersistence.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
         UpdateUserCommand cmd = new UpdateUserCommand(

@@ -9,11 +9,11 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,10 +21,9 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
+@NoArgsConstructor
 @Entity
-@AllArgsConstructor
-@RequiredArgsConstructor
 @Table(name = "users")
 public class UserJpa extends BaseEntityJpa {
     @Column(name = "full_name", nullable = false)

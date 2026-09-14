@@ -8,6 +8,7 @@ import com.hdp.customer_service.infrastructure.adapter.outbound.persistence.jpa.
 import com.hdp.customer_service.infrastructure.adapter.outbound.persistence.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public User save(User user) {
         UserJpa jpa;
         if (user.getId() != null) {
@@ -62,5 +64,11 @@ public class UserPersistenceAdapter implements UserPersistencePort {
         return userRepository.findById(id.value())
             .map(userMapper::toDomain)
             .orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void softDelete(UUID id) {
+        userRepository.markAsDeleted(id);
     }
 }

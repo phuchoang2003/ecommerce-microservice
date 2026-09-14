@@ -22,7 +22,6 @@ class UserMapperTest {
     @Test
     void toDomain_mapsAllFields() {
         UUID id = UUID.randomUUID();
-        Instant now = Instant.now();
         UserJpa jpa = UserJpa.builder()
             .id(id)
             .fullName("Alice")
@@ -31,9 +30,9 @@ class UserMapperTest {
             .dateOfBirth(LocalDate.of(1990, 1, 1))
             .gender(Gender.FEMALE)
             .avatarUrl("https://cdn/a.png")
-            .deletedAt(null)
-            .createdAt(now)
-            .updatedAt(now)
+            .isDeleted(false)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
             .addresses(new ArrayList<>(List.of(
                 UserAddressJpa.builder()
                     .street("123 Le Loi")
@@ -53,9 +52,6 @@ class UserMapperTest {
         assertThat(domain.getDateOfBirth()).isEqualTo(LocalDate.of(1990, 1, 1));
         assertThat(domain.getGender()).isEqualTo(Gender.FEMALE);
         assertThat(domain.getAvatarUrl()).isEqualTo("https://cdn/a.png");
-        assertThat(domain.getDeletedAt()).isNull();
-        assertThat(domain.getCreatedAt()).isEqualTo(now);
-        assertThat(domain.getUpdatedAt()).isEqualTo(now);
         assertThat(domain.getAddresses()).hasSize(1);
         assertThat(domain.getAddresses().get(0).city()).isEqualTo("HCMC");
     }
@@ -99,8 +95,7 @@ class UserMapperTest {
         User update = User.reconstitute(
             com.hdp.customer_service.domain.valueobject.UserId.of(jpa.getId()),
             "New Name", "new@y.com", null, null, null, null,
-            List.of(new Address(null, "NEW1", null, null, "NEW_CITY", "VN")),
-            null, Instant.now(), Instant.now()
+            List.of(new Address(null, "NEW1", null, null, "NEW_CITY", "VN"))
         );
 
         mapper.applyToJpa(update, jpa);
@@ -127,8 +122,7 @@ class UserMapperTest {
         User update = User.reconstitute(
             com.hdp.customer_service.domain.valueobject.UserId.of(jpa.getId()),
             "X", "x@y.com", null, null, null, null,
-            List.of(),
-            null, Instant.now(), Instant.now()
+            List.of()
         );
 
         mapper.applyToJpa(update, jpa);
