@@ -9,9 +9,8 @@ public class OrderValidationChain {
     @Bean
     public OrderValidationStep orderValidation(CustomerValidationStep step1,
                                                FraudValidationStep step2) {
-        return step1
-                .next(step2);
-
+        step1.setNext(step2);
+        return step1;
     }
 
 }

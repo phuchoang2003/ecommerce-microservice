@@ -14,7 +14,8 @@ public class MessageSourceAutoConfiguration {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasenames(
             "classpath:messages-validation",
-            "classpath:messages-business"
+            "classpath:messages-business",
+            "classpath:messages-order"
         );
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setCacheSeconds(300);

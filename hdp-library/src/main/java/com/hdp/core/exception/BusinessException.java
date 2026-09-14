@@ -12,7 +12,7 @@ public class BusinessException extends RuntimeException {
 
     public BusinessException(String messageKey, Object... messageArgs) {
         super(messageKey);
-        this.errorCode = ErrorCode.BUSINESS_ERROR;
+        this.errorCode = CoreErrorCode.BUSINESS_ERROR;
         this.details = null;
         this.messageArgs = messageArgs;
     }

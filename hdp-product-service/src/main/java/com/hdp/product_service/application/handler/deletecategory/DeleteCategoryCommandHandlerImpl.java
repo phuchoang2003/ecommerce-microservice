@@ -1,7 +1,7 @@
 package com.hdp.product_service.application.handler.deletecategory;
 
 import com.hdp.core.exception.BusinessException;
-import com.hdp.core.exception.ErrorCode;
+import com.hdp.core.exception.CoreErrorCode;
 import com.hdp.core.exception.NotFoundException;
 import com.hdp.product_service.application.port.in.deletecategory.DeleteCategoryCommand;
 import com.hdp.product_service.application.port.in.deletecategory.DeleteCategoryCommandHandler;
@@ -27,7 +27,7 @@ public class DeleteCategoryCommandHandlerImpl implements DeleteCategoryCommandHa
             .orElseThrow(() -> new NotFoundException("Category", command.id()));
 
         if (!categoryPersistence.findByParentIdAndNotDeleted(command.id()).isEmpty()) {
-            throw new BusinessException(ErrorCode.BUSINESS_ERROR,
+            throw new BusinessException(CoreErrorCode.BUSINESS_ERROR,
                 "Cannot delete category with children");
         }
 

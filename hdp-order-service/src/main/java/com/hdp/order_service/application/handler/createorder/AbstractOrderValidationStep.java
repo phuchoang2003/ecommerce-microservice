@@ -8,15 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractOrderValidationStep implements OrderValidationStep {
     private OrderValidationStep next;
 
-    public final OrderValidationStep next(OrderValidationStep next) {
+    public final void setNext(OrderValidationStep next) {
         this.next = next;
-        return next;
     }
 
     @Override
     public final void validate(CreateOrderCommand command) {
         doValidate(command);
-        if(next != null){
+        if (next != null) {
             log.debug("Next step: {}", next.getClass().getSimpleName());
             next.validate(command);
         }

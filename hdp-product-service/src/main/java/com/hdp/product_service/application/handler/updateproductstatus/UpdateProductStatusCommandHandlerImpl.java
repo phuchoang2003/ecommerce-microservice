@@ -2,7 +2,7 @@ package com.hdp.product_service.application.handler.updateproductstatus;
 
 import com.hdp.core.event.DomainEventPublisher;
 import com.hdp.core.exception.BusinessException;
-import com.hdp.core.exception.ErrorCode;
+import com.hdp.core.exception.CoreErrorCode;
 import com.hdp.core.exception.NotFoundException;
 import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusCommand;
 import com.hdp.product_service.application.port.in.updateproductstatus.UpdateProductStatusCommandHandler;
@@ -30,7 +30,7 @@ public class UpdateProductStatusCommandHandlerImpl implements UpdateProductStatu
             .orElseThrow(() -> new NotFoundException("Product", command.id()));
 
         if (!product.getSellerId().equals(command.sellerId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN,
+            throw new BusinessException(CoreErrorCode.FORBIDDEN,
                 "Seller not authorized to update this product");
         }
 
