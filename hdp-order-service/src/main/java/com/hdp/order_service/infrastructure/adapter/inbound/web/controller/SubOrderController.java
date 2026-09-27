@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/sub-orders")
+@RequestMapping("/sub-orders")
 @RequiredArgsConstructor
 public class SubOrderController {
 
