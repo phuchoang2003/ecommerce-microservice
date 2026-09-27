@@ -1,0 +1,32 @@
+## =============================================================================
+## Reference config for hdp-api-gateway — DOCKER profile override.
+##
+## Target path in config-repo:
+##   github.com/phuchoang2003/ecommerce-config-repo
+##     └─ services/hdp-api-gateway/docker/hdp-api-gateway.yml
+##
+## Activated with: SPRING_PROFILES_ACTIVE=docker
+##
+## This file OVERLAYS the default profile (hdp-api-gateway.yml). Only keys
+## that change between local-dev-on-host and docker-compose go here —
+## everything else inherits from the default.
+##
+## Why we override only the Eureka URL:
+##   - Inside the docker-compose network, services reach each other by their
+##     service name (e.g. `hdp-discovery-service`), not `localhost`.
+##   - Gateway route URIs stay as `lb://HDP-ORDER-SERVICE` because Eureka
+##     resolves those regardless of which network the gateway is on — the
+##     only thing that has to change is where the gateway finds Eureka.
+## =============================================================================
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      ## docker-compose service name for the Eureka server
+      defaultZone: http://hdp-discovery-service:8761/eureka/
+  instance:
+    prefer-ip-address: false
+    hostname: ${spring.application.name}
