@@ -30,7 +30,7 @@ public final class ErrorCodeHttpMapper {
             return switch (ec) {
                 case VALIDATION_ERROR, BUSINESS_ERROR, CONSTRAINT_VIOLATION, CONSTRAINT_DECLARATION_ERROR -> HttpStatus.BAD_REQUEST;
                 case NOT_FOUND -> HttpStatus.NOT_FOUND;
-                case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+                case UNAUTHORIZED, INVALID_CREDENTIALS, INVALID_REFRESH_TOKEN -> HttpStatus.UNAUTHORIZED;
                 case FORBIDDEN -> HttpStatus.FORBIDDEN;
                 case DUPLICATE_KEY -> HttpStatus.CONFLICT;
                 case INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
@@ -46,6 +46,8 @@ public final class ErrorCodeHttpMapper {
                 case NOT_FOUND -> "not-found";
                 case BUSINESS_ERROR -> "business";
                 case UNAUTHORIZED -> "unauthorized";
+                case INVALID_CREDENTIALS -> "invalid-credentials";
+                case INVALID_REFRESH_TOKEN -> "invalid-refresh-token";
                 case FORBIDDEN -> "forbidden";
                 case CONSTRAINT_VIOLATION -> "constraint-violation";
                 case CONSTRAINT_DECLARATION_ERROR -> "constraint-declaration";

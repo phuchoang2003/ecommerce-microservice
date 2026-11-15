@@ -48,6 +48,24 @@ spring:
     locations: classpath:db/migration
 
 # ---------------------------------------------------------------------------
+# Security — Keycloak JWT resource server + /v1/auth endpoints
+# Matchers are relative to server.servlet.context-path (/api).
+# ---------------------------------------------------------------------------
+app:
+  security:
+    issuer-uri: ${KEYCLOAK_ISSUER:http://localhost:8282/realms/hdp}
+    jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:}
+    permit-all-post:
+      - /v1/users          # registration
+    keycloak:
+      base-url: ${KEYCLOAK_URL:http://localhost:8282}
+      realm: hdp
+      client-id: hdp-backend
+      client-secret: ${KEYCLOAK_CLIENT_SECRET:hdp-backend-secret}
+    auth:
+      enabled: true
+
+# ---------------------------------------------------------------------------
 # Eureka discovery
 # ---------------------------------------------------------------------------
 eureka:
