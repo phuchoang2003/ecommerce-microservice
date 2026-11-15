@@ -1,6 +1,49 @@
 version: "3.8"
 
 services:
+  keycloak-db:
+    image: postgres:18.3
+    container_name: keycloak-db
+    restart: unless-stopped
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: hdp_keycloak
+      POSTGRES_DB: hdp_keycloak
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U hdp_keycloak -d hdp_keycloak" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-net
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    container_name: keycloak
+    # --import-realm loads docker/keycloak/hdp-realm.json on first start.
+    command: ["start-dev", "--import-realm"]
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_ADMIN : admin
+      KEYCLOAK_ADMIN_PASSWORD : admin
+      KC_HTTP_PORT: 8282
+      # Public issuer is localhost; containers reach Keycloak via keycloak:8282
+      # and validate tokens against the localhost issuer through jwk-set-uri.
+      KC_HOSTNAME: http://localhost:8282
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/hdp_keycloak
+      KC_DB_USERNAME: hdp_keycloak
+      KC_DB_PASSWORD: postgres
+    ports:
+      - "8282:8282"
+    volumes:
+      - ./docker/keycloak/hdp-realm.json:/opt/keycloak/data/import/hdp-realm.json:ro
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    networks:
+      - ecommerce-net
   redis:
     image: redis:8.8.1-trixie
     container_name: redis
@@ -50,10 +93,16 @@ services:
       DB_PASSWORD: postgres
       # Kafka: use the internal listener, not the host-mapped one.
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      # Keycloak: issuer stays the public localhost URL, JWKS is fetched internally.
+      KEYCLOAK_ISSUER: http://localhost:8282/realms/hdp
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8282/realms/hdp/protocol/openid-connect/certs
+      KEYCLOAK_URL: http://keycloak:8282
     depends_on:
       order-db:
         condition: service_healthy
       kafka:
+        condition: service_started
+      keycloak:
         condition: service_started
     networks:
       - ecommerce-net
@@ -113,9 +162,15 @@ services:
       DB_URL: jdbc:postgresql://customer-db:5432/customer_db
       DB_USERNAME: hdp_user
       DB_PASSWORD: postgres
+      # Keycloak: issuer stays the public localhost URL, JWKS is fetched internally.
+      KEYCLOAK_ISSUER: http://localhost:8282/realms/hdp
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8282/realms/hdp/protocol/openid-connect/certs
+      KEYCLOAK_URL: http://keycloak:8282
     depends_on:
       customer-db:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     networks:
       - ecommerce-net
 
@@ -123,7 +178,7 @@ services:
     image: postgres:18.3
     restart: always
     ports:
-      - "5435:5432"
+      - "5435:5435"
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: hdp_user
@@ -203,6 +258,7 @@ volumes:
   customer_data:
   grafana-data:
   redis_data:
+  keycloak-db-data:
 
 networks:
   ecommerce-net:

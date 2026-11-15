@@ -41,6 +41,7 @@ configurations.all {
 dependencies {
     // HDP Common library — domain primitives, web, infrastructure, observability
     implementation project(':hdp-library')
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
 
     // Spring Cloud Config client — pulls config from hdp-config-server on startup
     implementation 'org.springframework.cloud:spring-cloud-starter-config'

@@ -60,6 +60,13 @@ dependencies {
     api 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:2.0.0'
     compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+    // Security — Keycloak JWT resource server + auth endpoints.
+    // compileOnly is load-bearing: exposing these as api/implementation puts
+    // Spring Security on notification-service's classpath, where Boot's default
+    // Basic-auth auto-config would silently secure every endpoint.
+    compileOnly 'org.springframework.boot:spring-boot-starter-security'
+    compileOnly 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+
     // Messaging — Kafka + Avro (formerly hdp-common-messaging)
     compileOnly 'org.springframework.kafka:spring-kafka'
     // Confluent Avro serializer pulls swagger-annotations:2.1.10 which conflicts
@@ -72,6 +79,11 @@ dependencies {
 
     api 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {

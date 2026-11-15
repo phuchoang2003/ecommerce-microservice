@@ -13,4 +13,6 @@ com.hdp.common.persistence.datasource.DatasourceProxyConfiguration
 com.hdp.common.persistence.datasource.SqlCommentsAutoConfiguration
 com.hdp.common.persistence.event.DomainEventPublisherAutoConfiguration
 com.hdp.common.messaging.config.KafkaMessagingConfig
+com.hdp.common.security.config.HdpSecurityAutoConfiguration
+com.hdp.common.security.config.KeycloakAuthAutoConfiguration
 com.hdp.observability.config.CommonTagsConfig

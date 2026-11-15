@@ -1,0 +1,95 @@
+{
+  "realm": "hdp",
+  "enabled": true,
+  "displayName": "HDP E-Commerce",
+  "accessTokenLifespan": 3600,
+  "ssoSessionIdleTimeout": 604800,
+  "ssoSessionMaxLifespan": 604800,
+  "roles": {
+    "realm": [
+      {
+        "name": "BUYER",
+        "description": "Can place and track orders"
+      },
+      {
+        "name": "SELLER",
+        "description": "Can manage products and categories"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Full platform access"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "hdp-backend",
+      "name": "HDP backend services",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "hdp-backend-secret",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "buyer@hdp.com",
+      "email": "buyer@hdp.com",
+      "firstName": "Buyer",
+      "lastName": "Test",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Buyer@123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "BUYER"
+      ]
+    },
+    {
+      "username": "seller@hdp.com",
+      "email": "seller@hdp.com",
+      "firstName": "Seller",
+      "lastName": "Test",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Seller@123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "SELLER"
+      ]
+    },
+    {
+      "username": "admin@hdp.com",
+      "email": "admin@hdp.com",
+      "firstName": "Admin",
+      "lastName": "Test",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin@123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    }
+  ]
+}
